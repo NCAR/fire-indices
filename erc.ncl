@@ -11,6 +11,7 @@ tmpmin_in
 fm1000_in
 fm100_in
 output
+const_in
 
 optionally:
 elev_in
@@ -757,6 +758,7 @@ r_fm1000 = addfile(fm1000_in, "r")
 r_fm100 = addfile(fm100_in, "r")
 r_huss = addfile(spchum_in, "r")
 r_z3 = addfile(z3_in, "r")
+r_const = addfile(const_in, "r")
 ;r_elev = addfile(elev_in, "r")
 
 system("rm -f "+output)
@@ -828,23 +830,23 @@ mlat = r_z3->lat
 mlon= r_z3->lon
 pptdur = calc_pduration(b, prec, lat, lon, mlat, mlon)
 
-;READ IN ALL THE CONSTANTS (aka get rid of this block eventually) (fuel model G)
-w1d = 2.5
-w10d = 2.
-w100d = 5.
-w1000d = 12.
-wherb = 0.5
-wwood = 0.5
-depth = 1.
-sig1d = 2000.
-sig10d = 109.
-sg100d = 30.
-s1000d = 8.
-sgherb = 2000.
-sgwood = 1500.
-extmoi = 25.
-hd = 8000.
-
+;READ IN ALL THE CONSTANTS. For right now, always use fuel model G
+fuel_mod = 6    ;0=A, 1=B, 2=C, 3=D, 4=E, 5=F, 6=G, 7=H, 8=I, 9=J etc
+w1d = r_const->w1(fuel_mod)
+w10d = r_const->w10(fuel_mod)
+w100d = r_const->w100(fuel_mod)
+w1000d = r_const->w1000(fuel_mod)
+wherb = r_const->whrb(fuel_mod)
+wwood = r_const->wwd(fuel_mod)
+depth = r_const->dp(fuel_mod)
+sig1d = r_const->s1(fuel_mod)
+sig10d = r_const->s10(fuel_mod)
+sg100d = r_const->s100(fuel_mod)
+s1000d = r_const->s1000(fuel_mod)
+sgherb = r_const->shrb(fuel_mod)
+sgwood = r_const->swd(fuel_mod)
+extmoi = r_const->emo(fuel_mod)
+hd = r_const->hd(fuel_mod)
 
 c1 = 0.046
 
