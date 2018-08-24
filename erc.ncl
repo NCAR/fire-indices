@@ -662,8 +662,7 @@ end if
 
 hnwood = where((-500. / sgwood) .lt. -180.218, 0., wwoodn * exp(-500. / sgwood))
 wrat = where((hnherb + hnwood) .eq. 0., 0., (hnu1 + hnu10 + hnu100) / (hnherb + hnwood))
-fmff1 = ((fm1 * hnu1) + (fm10 * hnu10) + (fm100 * hnu100)) / (hnu1 + hnu10 + hnu100)	; fine dead fuel moisture content
-fmff = fmff1(0,0)
+fmff = ((fm1 * hnu1) + (fm10 * hnu10) + (fm100 * hnu100)) / (hnu1 + hnu10 + hnu100)	; fine dead fuel moisture content
 extliv = where(wtotln .gt. 0, ((2.9 * wrat * (1 - fmff / extmoi) - 0.226) * 100) > extmoi, 0.)	; moisture of extinction of the dead fuels from the fuel model
 
 ;weighting factors for rate-of-spread by surface area
