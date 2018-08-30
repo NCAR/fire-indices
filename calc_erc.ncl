@@ -5,7 +5,8 @@
  erc is energy release component
 ;/
 function calc_erc(w1d,w10d,w100d,w1000d,wherb,wwood,fherbc,depth,sg1d,sg10d,sg100d,sg1000d,sgherb,sgwood,fm1,fm10,fm100,fm1000,fmwood,extmoi,hd)
-local stdl, rhodl, sdl, etasdl, fctcur, wherbc, w1dp, wherbp, wtotd, wtotl, wtot, w1n, w10n, wherbn, wwoodn, wtotln, rhobed, rhobar, betbar, hnu1, hnu10, hnu100, hnherb, hnwood, wrat, fmff, extliv, sa1, sa10, sa100, sherbc, sawood, sadead, salive, fct1, fct10, fct100, $
+local stdl, rhodl, sdl, etasdl, fctcur, wherbc, w1dp, wherbp, wtotd, wtotl, wtot, w1n, w10n, wherbn, wwoodn, wtotln, rhobed, rhobar, betbar, hnu1, hnu10, hnu100, hnherb, hnwood, wrat, fmff, extliv, sa1, sa10, sa100, sherbc, sawood, sadead, salive, fct1, fct10, fct100, fcherb, fcwood, fcded, fcliv, sgbrd, sgbrl, sgbrt, fct1e, fct10e, fct100e, f1000e, fwoode, fhrbce, fcdede, fclice, wdedne, wlivne, sgbrde, sgbrle, sgbrte, betope, gmamxe, ade, gmapme, wftmde, wtfmle, dedrte, livrte, etamde, etamle, ire, tau, erc
+
 begin
 
 stdl = 0.0555   ; used in place of std and stl, since both have the same value
