@@ -4,7 +4,7 @@
   end setvalues
 
 
-; Calculate fm1000. Highly useful fire index, also used as an input in ERC
+; Calculate fm1000. Independent fire index, also used as an input in ERC
 
 load "calc_emc.ncl"
 load "calc_julian_day.ncl"
@@ -26,9 +26,10 @@ rhmin_in
 z3_in
 output
 
-precip should be in inches
-temperature should be in Fahrenheit
+precip should be in mm
+temperature should be in Celsius
 humidity should be on a 0 to 100 scale
+Alternatively, discard conversions in script and read in precip in inches, temperature in Fahrenheit
 ;/
 
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -36,6 +37,7 @@ humidity should be on a 0 to 100 scale
 
 begin
 
+;read in all inputs
 r_tempmax = addfile(tmpmax_in, "r")
 r_tempmin = addfile(tmpmin_in, "r")
 r_hummin = addfile(rhmin_in, "r")
@@ -44,23 +46,21 @@ r_pr = addfile(precip_in, "r")
 r_z3 = addfile(z3_in, "r")
 
 system("rm -f "+output)
-w_fm1000 = addfile(output, "c")
+w_fm1000 = addfile(output, "c")	;create output file
 
 filedimdef(w_fm1000, "day", -1, True) ; make time dimension unlimited
 
 ;copy/set global attributes
-
 att_names = getvaratts(r_pr)
 
 do i = 0,dimsizes(att_names)-1                         ;transfer global attributes of inputs onto global attributes of output
   w_fm1000@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+", " + rhmax_in+", "+rhmin_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+", " + rhmax_in+", "+rhmin_in+", "+z3_in
 w_fm1000@history = history
 
 ; copy variables
-
 var_names = getfilevarnames (r_pr)
 
 do i = 0, dimsizes(var_names)-1
@@ -71,8 +71,8 @@ end do
 
 time = r_tempmax->time
 maxtemp = r_tempmax->tmax
-maxtemp = maxtemp * 1.8 + 32.
-;maxtemp = (maxtemp- 273.15) * 1.8 + 32.
+maxtemp = maxtemp * 1.8 + 32.	; convert Celsius to Fahrenheit
+;maxtemp = (maxtemp- 273.15) * 1.8 + 32.	;convert Kelvin to Fahrenheit
 
 mintemp = r_tempmin->tmin
 mintemp = mintemp * 1.8 + 32.
@@ -93,8 +93,7 @@ lonlen = dimsizes(lon)
 emcmin = calc_emc(maxtemp, minhum)
 emcmax = calc_emc(mintemp, maxhum)
 
-climat = 3.
-
+climat = 3.	;possible refinement: create a file with each gridcell assigned a class according to fuel moisture and such, as seen on the cover of The National Fire Danger Rating System: basic equations (1985)
 b = r_z3->Z3
 pptdur = calc_pduration(b, pr, latlen, lonlen)
 
@@ -128,10 +127,9 @@ end do
 
 delete_VarAtts(mc1000, -1) ;get rid of superfluous attributes
 
-mc1000@long_name = "Percent Moisture Content for 1000-hr timelag"   ; No convention for long names, just make it descriptive
+mc1000@long_name = "Percent Moisture Content for 1000-hr timelag"  
 
 varatts = (/"units", "missing_value", "_FillValue"/)
-
 mc1000@$varatts(0)$ = "1"
 
 do i = 1, dimsizes(varatts)-1     ; transfer "missing value" and "_FillValue" from precip data

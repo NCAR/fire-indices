@@ -13,7 +13,7 @@ load "calc_point_pduration.ncl"
 load "calc_paper_pduration.ncl"
 load "calc_fm100.ncl"
 
-; Calculate fm100, of Fuel Moisture . It is an input to ERC, but is also a standalone fire index.
+; Calculates fm100, of Fuel Moisture . It is an input to ERC, but is also a standalone fire index.
 
 /; 
 The following variables should be specified as command-line arguments
@@ -25,22 +25,23 @@ tmpmin_in
 rhmax_in
 rhmin_in
 z3_in
-output
+output (the file to be written to)
 
-precip should be in inches
-temperature should be in Fahrenheit
+precip should be in mm
+temperature should be in Celsius
 humidity should be on a 0 to 100 scale
+Alternatively, remove all conversions and read in precip in inches and temperature in Fahrenheit
 ;/
 
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 begin
 
 ;read in tasmax and tasmin
 ;read in rhmax and rhmin
 ;read in precip
+;read in precip coefficients
 
 r_tempmax = addfile(tmpmax_in, "r")
 r_tempmin = addfile(tmpmin_in, "r")
@@ -50,33 +51,31 @@ r_pr = addfile(precip_in, "r")
 r_z3 = addfile(z3_in, "r")
 
 system("rm -f "+output)
-w_fm100 = addfile(output, "c")
+w_fm100 = addfile(output, "c")	;create output file
 
 filedimdef(w_fm100, "time", -1, True) ; make time dimension unlimited
 
 ;copy/set global attributes
-
 att_names = getvaratts(r_pr)
 
 do i = 0,dimsizes(att_names)-1                         ;transfer global attributes of inputs onto global attributes of output
   w_fm100@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+rhmin_in+ ", "+ rhmax_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+rhmin_in+ ", "+ rhmax_in+", "+z3_in
 w_fm100@history = history
 
 ; copy variables
 
 var_names = getfilevarnames (r_pr)
 
-do i = 0, dimsizes(var_names)-1       ;get all variable attributes except for precip attached to spi, not sure if all th$
+do i = 0, dimsizes(var_names)-1		;attach lat, lon, etc. to the output file
    if (var_names(i) .ne. "prec") then
        w_fm100->$var_names(i)$ = r_pr->$var_names(i)$
    end if
 end do
 
 time = r_tempmax->time
-;time = r_tempmax->day
 
 maxtemp = r_tempmax->tmax
 maxtemp = maxtemp * 1.8 + 32
@@ -100,7 +99,7 @@ climcl = 3.
 fm100 = maxtemp         ;just to establish lat, lon etc
 fm100 = -1.             ;to ensure that any values not calculated are obviously wrong
 ;yfm = 5. + 5. * climcl ;different initial value, the one used in the paper
-yfm = maxtemp(0, :, :)  ;establish lat, lon
+yfm = maxtemp(0, :, :)  ;establish lat, lon for yfm (only holds one time step)
 yfm = 10.0
 
 emcmax = calc_emc(mintemp, maxhum)
@@ -132,14 +131,13 @@ fm100@long_name = "Percent Moisture Content for 100-hr timelag"   ; No conventio
 
 varatts = (/"units", "missing_value", "_FillValue"/)
 
-fm100@$varatts(0)$ = "1"
+fm100@$varatts(0)$ = "%"
 
 do i = 1, dimsizes(varatts)-1     ; transfer "missing value" and "_FillValue" from precip data
    fm100@$varatts(i)$ = r_pr->prec@$varatts(i)$
 end do
 
 w_fm100->fm100 = fm100
-
 
 end
 
