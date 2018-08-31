@@ -38,7 +38,6 @@ mcherb = mc1    ;pregreen stage
 
 fherbf = herbga + herbgb * x1000 < 250
 mcherb = where(hveg .eq. "greenup", (mc1 + (fherbf - mc1) * gren) < 250 , mcherb)               ; this version from MATLAB code
-
 mcherb = where(hveg .eq. "green", (herbga + herbgb * x1000) < 250, mcherb)
 
 ymherb = where(hveg .eq. "green" .and. ymherb .lt. 0., mcherb, ymherb)

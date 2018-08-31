@@ -13,8 +13,7 @@ flon = ind(abs(mlon - lon) .lt. (1./24.))
 flat1 = flat(0)
 flon1 = flon(0)
 
-b = z3(flon1, flat1)    ;!!may reorder variables later!!
-
+b = z3(flon1, flat1)    ;check the variable order in the z3 input file.
 
 pdur = 24. * (1. - exp(-b * ppt))
 pdur = round(pdur, 0)

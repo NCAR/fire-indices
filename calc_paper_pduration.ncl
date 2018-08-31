@@ -2,6 +2,7 @@
  ppt is amount of precipitation
  lat and lon are latitude and longitude
  climat is NFDRS climate class
+ this function is to be used as a last resort. It does not require any additional files, but, is not as accurate, as the other pduration functions
 ;/
 function calc_paper_pduration(ppt, lat, lon, climat)
 local pdur, wetrat

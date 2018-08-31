@@ -13,7 +13,7 @@ function calc_gsi(tmmn, lat, vpd, day_year, lonlen)
 local vpd1, day_year, daylit, dayl, tmmn1, gsi, gsi_avg, gsi_adj
 begin
 
-vpd1 = 1 - (vpd - .9) / 3.2                     ;note that the variables vpd1, dayl, and tmmn1 are all normalized in some way, could be consolidated to a genearl normalizing function (not to be confused with function normalize below)
+vpd1 = 1 - (vpd - .9) / 3.2                     ;note that the variables vpd1, dayl, and tmmn1 are all normalized in some way, could be consolidated to a general normalizing function (not to be confused with function normalize)
 vpd1 = where(vpd .le. 0.9, 1., vpd1)
 vpd1 = where(vpd .ge. 4.1, 0., vpd1)
 
@@ -31,11 +31,10 @@ gsi = tmmn1 * vpd1 * dayl
 
 timelen = dimsizes(gsi(:, 0,0))
 latlen = dimsizes(gsi(0, :, 0))
-gsi1 = conform_dims((/timelen + 20, latlen, lonlen/), flt2dble(0.), -1)
+gsi1 = conform_dims((/timelen + 20, latlen, lonlen/), flt2dble(0.), -1)	;pad gsi with 10 zeros on either end to avoid missing values in actual data when computing average
 gsi1(10:(timelen+9), :, :) = gsi
 
-gsi_avg = runave_n(gsi1, 21, 0, 0)        ; note that any reference to an element of this array must have 10 added in order to achieve the same output of MATLAB function
-;the MATLAB code uses a running average of current element and previous 20 elements. There is no easy way to do this in NCL
+gsi_avg = runave_n(gsi1, 21, 0, 0)
 
 gsi_adj = gsi_avg(10:timelen+9, :, :)   ;discards the extra zeros on both ends of the array
 
