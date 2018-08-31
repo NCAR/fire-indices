@@ -1,4 +1,5 @@
 /;
+ This should hardly be a function, but it is
  sowc is State of Weather Codes
  emcprm is the equilibrium moisture content at the fuel atm interface and has had temp and humid adjustments
 ;/

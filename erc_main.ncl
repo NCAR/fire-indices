@@ -10,8 +10,6 @@ load "calc_pduration.ncl"
 load "calc_point_pduration.ncl"
 load "calc_paper_pduration.ncl"
 load "calc_emc.ncl"
-load "calc_fm1.ncl"
-load "calc_fm10.ncl"
 load "calc_x1000.ncl"
 load "calc_mcherb.ncl"
 load "calc_mcwood.ncl"
@@ -119,8 +117,8 @@ rh1 = minrh + 2.
 prec = r_pr->prec
 prec = prec / 24.5      ;mm to inches
 rad = r_rad->rsds
-mc1000 = r_fm1000->fm1000       ;calculated in a different file
-mc100 = r_fm100->fm100
+fm1000 = r_fm1000->fm1000       ;calculated in a different file
+fm100 = r_fm100->fm100
 huss = r_huss->huss
 b = r_z3->Z3
 ;elev = r_elev->orog
@@ -186,8 +184,8 @@ gsi_norm = normalize(gsi)
 
 greenup = find_first(gsi_norm, day_year, latlen, lonlen)
 
-yx1000 = mc1000(0, :, :)
-ym1000 = mc1000(0, :, :)
+yx1000 = fm1000(0, :, :)
+ym1000 = fm1000(0, :, :)
 
 pregrns = (/50.0,60.0,70.0,80.0/)
 pregrn1 = pregrns(climat -1)
@@ -197,12 +195,12 @@ rhprm = rh1
 adjust(tmpprm, rhprm, sow)
 emcprm = calc_emc(tmpprm, rhprm)
 
-mc1 = calc_fm1(emcprm, sow)             ; NOTE: the prefixes mc and fm are interchangeable
-mc10 = calc_fm10(emcprm, sow)
+fm1 = where(sow .gt. 4, 35.0, 1.03 * emcprm)
+fm10 = where(sow .gt. 4, 35., 1.28 * emcprm)
 
 mcwodi = ymherb
 mcwodi = (/pregrn1/)
-mcherbi = mc1
+mcherbi = fm1
 
 erc = prec	;establishes lat, lon, etc.
 ndays = dimsizes(time) - 1
@@ -214,16 +212,16 @@ do i=0, ndays
         hveg = calc_prelim_vegstage(hveg, warmdays, colddays, day_year(i), j_green, gdd)
         gdd = where(warmdays .gt. 5, gdd + (maxt(i, :, :) + mint(i, :, :)) / 2. - 32., 0)
 
-        x1000 = calc_x1000(mc1000(i, :, :), ym1000, yx1000, maxt(i, :, :), mint(i, :, :), hveg)
+        x1000 = calc_x1000(fm1000(i, :, :), ym1000, yx1000, maxt(i, :, :), mint(i, :, :), hveg)
 
         gren = where(hveg .eq. "greenup", 100. * greendays / (7 * climat), -1.0)
 
-        mcherb  = calc_mcherb(mc1(i, :, :), mcherbi(i, :, :), mc1000(i, :, :), ym1000, greendays, climat, hveg, annperen, x1000, ymherb, gren)
+        mcherb  = calc_mcherb(fm1(i, :, :), mcherbi(i, :, :), fm1000(i, :, :), ym1000, greendays, climat, hveg, annperen, x1000, ymherb, gren)
         greendays = where(hveg .eq. "greenup", greendays + 1, greendays)
-        mcwood = calc_mcwood(pregrn1, mcwodi, mc1000(i, :, :), climat, hveg, gren, ymwood)
+        mcwood = calc_mcwood(pregrn1, mcwodi, fm1000(i, :, :), climat, hveg, gren, ymwood)
 
         hveg = calc_vegstage(warmdays, colddays, gdd, maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
-        erc(i, :, :) = (/calc_erc(w1d, w10d, w100d, w1000d, wherb, wwood, mcherb, depth, sg1d, sg10d, sg100d, sg1000d, sgherb, sgwood, mc1(i, :, :), mc10(i, :, :), mc100(i, :, :), mc1000(i, :, :), mcwood, extmoi, hd)/)
+        erc(i, :, :) = (/calc_erc(w1d, w10d, w100d, w1000d, wherb, wwood, mcherb, depth, sg1d, sg10d, sg100d, sg1000d, sgherb, sgwood, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, extmoi, hd)/)
 
         colddays = where(hveg .eq. "cured" .and. mint(i, :, :) .lt. 32., colddays + 1, colddays)
         colddays = where(hveg .eq. "greenup" .or. hveg .eq. "frozen", 0., colddays)

@@ -1,4 +1,5 @@
 /;
+ This function is an alternative to the built in NCL function to calculate the number of daylight hours
  j_date is day of year
  lat is latitude
  lonlen is the number of longitude coordinates in the area of calculation

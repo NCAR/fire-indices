@@ -1,4 +1,5 @@
 /;
+ This function calculates EMC, or equilibrium moisture content
  T is temperature
  H is humidity
  emc is equilibrium moisture content

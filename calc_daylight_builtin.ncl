@@ -3,6 +3,7 @@ load "crop.ncl"                                         ;only for when path is n
 
 
 /;
+ This function uses a built in NCL function to calculate the number of daylight hours
  day is day of year
  lat is latitude
  lonlen is the number of longitude coordinates in the area of calculation
