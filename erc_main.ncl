@@ -1,8 +1,10 @@
+load "calc_julian_day.ncl"
 load "calc_vpd.ncl"
 load "calc_gsi.ncl"
 load "normalize.ncl"
 load "find_first.ncl"
 load "adjust.ncl"
+load "calc_potential_solar.ncl"
 load "calc_sow_daily.ncl"
 load "calc_pduration.ncl"
 load "calc_point_pduration.ncl"
@@ -41,11 +43,11 @@ z3_in   ; this is a coefficient for converting precipitation amount to precipita
 
 ;Calculate ERC with these inputs:
 /;
-precipitation
-solar radiation
-maximum and minimum relative humidity
-maximum and minimum temperature
-optionally, altitude
+precipitation (in mm)
+solar radiation (Downwelling shortwave radiation, in W m-2)
+maximum and minimum relative humidity (on a 0 to 100 scale)
+maximum and minimum temperature (in Celsius)
+optionally, altitude	(default is 500 m)
 
 secondarily,
 latitude
@@ -73,7 +75,7 @@ r_const = addfile(const_in, "r")
 ;r_elev = addfile(elev_in, "r")
 
 system("rm -f "+output)
-w_erc = addfile(output, "c") ;create new file to store three month spi (current and previous lines)
+w_erc = addfile(output, "c") ;create new file to store erc (current and previous lines)
 
 filedimdef(w_erc, "time", -1, True) ; make time dimension unlimited
 
@@ -85,7 +87,7 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_erc@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source file "+precip_in+ ", "+solrad_in+ ", "+rhmax_in+ ", "+rhmin_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+fm1000_in+ ", "+fm100_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source file "+precip_in+ ", "+solrad_in+ ", "+rhmax_in+ ", "+rhmin_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+fm1000_in+ ", "+fm100_in+", "+z3_in+", "+spchum_in
 w_erc@history = history
 
 ; copy variables
@@ -104,12 +106,12 @@ lat = r_pr->lat
 lon = r_pr->lon
 time = r_pr->time
 
-maxtC = r_tmax->tmax
-;maxtC = maxt - 273.15
-maxt = maxtC * 1.8 + 32.
+maxtC = r_tmax->tmax	;NOTE: temperature is actually needed in Celsius AND Fahrenheit!
+;maxtC = maxt - 273.15	;Kelvin to Celsius
+maxt = maxtC * 1.8 + 32.	;Celsius to Fahrenheit
 mintC = r_tmin->tmin
 ;mintC = mint - 273.15
-mint = mintC * 1.8 + 32.                ;Celsius to Fahrenheit
+mint = mintC * 1.8 + 32.
 maxrh = r_rhmax->rhmax
 minrh = r_rhmin->rhmin
 temp1 = maxt - 2.
@@ -117,7 +119,6 @@ rh1 = minrh + 2.
 prec = r_pr->prec
 prec = prec / 24.5      ;mm to inches
 rad = r_rad->rsds
-;surface_downwelling_shortwave_flux_in_air
 mc1000 = r_fm1000->fm1000       ;calculated in a different file
 mc100 = r_fm100->fm100
 huss = r_huss->huss
@@ -193,17 +194,17 @@ pregrn1 = pregrns(climat -1)
 
 tmpprm = temp1
 rhprm = rh1
-adjust(tmpprm, rhprm, sow)             ;current MATLAB code does not adjust but it probably should
+adjust(tmpprm, rhprm, sow)
 emcprm = calc_emc(tmpprm, rhprm)
 
-mc1 = calc_fm1(emcprm, sow)             ; calculate fm1 and fm10
+mc1 = calc_fm1(emcprm, sow)             ; NOTE: the prefixes mc and fm are interchangeable
 mc10 = calc_fm10(emcprm, sow)
 
 mcwodi = ymherb
 mcwodi = (/pregrn1/)
 mcherbi = mc1
 
-erc = prec
+erc = prec	;establishes lat, lon, etc.
 ndays = dimsizes(time) - 1
 
 do i=0, ndays
@@ -211,7 +212,6 @@ do i=0, ndays
         year = tointeger(floor(i / 365.2425))
         j_green = greenup(year, :, :)
         hveg = calc_prelim_vegstage(hveg, warmdays, colddays, day_year(i), j_green, gdd)
-;       j_green = where( greendays .eq. 0 .and. hveg .eq. "greenup", day_year(i), j_green)      ;any point to this line at this point????
         gdd = where(warmdays .gt. 5, gdd + (maxt(i, :, :) + mint(i, :, :)) / 2. - 32., 0)
 
         x1000 = calc_x1000(mc1000(i, :, :), ym1000, yx1000, maxt(i, :, :), mint(i, :, :), hveg)
