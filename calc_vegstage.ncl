@@ -20,7 +20,7 @@ vegstage = where(hveg .eq. "greenup" .and. gren .ge. 100. .and. mcherb .ge. 120.
 vegstage = where(hveg .eq. "greenup" .and. gren .ge. 100. .and. mcherb .lt. 120., "transition", vegstage)
 vegstage = where(hveg .eq. "green" .and. mcherb .lt. 120, "transition", vegstage)
 vegstage = where(hveg .eq. "transition" .and. mcherb .le. 30., "cured", vegstage)
-vegstage = where(colddays .ge. 3 .and. hveg .eq. "cured", "frozen", vegstage)
+;vegstage = where(colddays .ge. 3 .and. hveg .eq. "cured", "frozen", vegstage)
 
 return(vegstage)
 

@@ -17,7 +17,7 @@ else
 end if
 
 vegstage = where(vegstage1 .eq. "pregreen" .and. j_date .ge. 60. .and. j_date .le. 212 .and. warmdays .gt. 5 .and. gdd .gt. 300, "greenup", vegstage1)
-vegstage = where(vegstage1 .eq. "curing" .and. colddays .ge. 3, "frozen", vegstage)
+vegstage = where(vegstage1 .eq. "cured" .and. colddays .ge. 3, "frozen", vegstage)
 
 return(vegstage)
 
