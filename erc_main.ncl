@@ -30,7 +30,6 @@ tmpmin_in
 fm1000_in
 fm100_in
 output
-const_in
 
 optionally:
 elev_in
@@ -53,7 +52,6 @@ longitude
 time
 ;/
 
-
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -69,27 +67,25 @@ r_fm1000 = addfile(fm1000_in, "r")
 r_fm100 = addfile(fm100_in, "r")
 r_huss = addfile(spchum_in, "r")
 r_z3 = addfile(z3_in, "r")
-r_const = addfile(const_in, "r")
+r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
 ;r_elev = addfile(elev_in, "r")
 
 system("rm -f "+output)
-w_erc = addfile(output, "c") ;create new file to store erc (current and previous lines)
+w_erc = addfile(output, "c") ;create new file to store erc
 
 filedimdef(w_erc, "time", -1, True) ; make time dimension unlimited
 
 ;copy/set global attributes
-
 att_names = getvaratts(r_pr)
 
 do i = 0,dimsizes(att_names)-1                         ;transfer global attributes of inputs onto global attributes of output
   w_erc@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source file "+precip_in+ ", "+solrad_in+ ", "+rhmax_in+ ", "+rhmin_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+fm1000_in+ ", "+fm100_in+", "+z3_in+", "+spchum_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts erc_main.ncl, calc_julian_day.ncl, calc_vpd.ncl, calc_gsi.ncl, normalize.ncl, find_first.ncl, adjust.ncl, calc_potential_solar.ncl, calc_sow_daily.ncl, calc_pduration.ncl, calc_point_pduration.ncl, calc_paper_pduration.ncl, calc_emc.ncl, calc_x1000.ncl, calc_mcherb.ncl, calc_mcwood.ncl, calc_prelim_vegstage.ncl, calc_vegstage.ncl, and calc_erc.ncl, from source file "+precip_in+ ", "+solrad_in+ ", "+rhmax_in+ ", "+rhmin_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+fm1000_in+ ", "+fm100_in+", "+z3_in+", "+spchum_in
 w_erc@history = history
 
 ; copy variables
-
 var_names = getfilevarnames(r_pr)
 
 do i = 0, dimsizes(var_names)-1
@@ -99,7 +95,7 @@ do i = 0, dimsizes(var_names)-1
 end do
 
 
-; initialize the following
+; initialize inputs
 lat = r_pr->lat
 lon = r_pr->lon
 time = r_pr->time
@@ -127,17 +123,17 @@ elev = 500.
 latlen = dimsizes(lat)
 lonlen = dimsizes(lon)
 timelen = dimsizes(time)
+
 day_year = calc_julian_day(time)
 tempsolar = calc_potential_solar(lat,day_year, elev)
 maxsolar = conform_dims((/timelen, latlen, lonlen/), tempsolar, (/0,1/))
-
 sow = calc_sow_daily(rad, prec, maxsolar)
 
 annperen = "annual"     ; in MATLAB code, 1 == annual, 2 == perennial
-climat = 3
-pptdur = calc_pduration(b, prec, latlen, lonlen)
+climat = 3	;climat is NFDRS Climate class
+pptdur = calc_pduration(b, prec, latlen, lonlen)	; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
 
-;READ IN ALL THE CONSTANTS. For right now, always use fuel model G
+;READ IN ALL THE CONSTANTS. For right now, always use fuel model G to match other literature
 fuel_mod = 6    ;0=A, 1=B, 2=C, 3=D, 4=E, 5=F, 6=G, 7=H, 8=I, 9=J etc
 w1d = r_const->w1(fuel_mod)
 w10d = r_const->w10(fuel_mod)
@@ -188,18 +184,18 @@ yx1000 = fm1000(0, :, :)
 ym1000 = fm1000(0, :, :)
 
 pregrns = (/50.0,60.0,70.0,80.0/)
-pregrn1 = pregrns(climat -1)
+pregrn = pregrns(climat -1)
 
 tmpprm = temp1
 rhprm = rh1
-adjust(tmpprm, rhprm, sow)
-emcprm = calc_emc(tmpprm, rhprm)
+adjust(tmpprm, rhprm, sow)	;this is adjusted temperature and humidity at the fuel-atmosphere interface, as opposed to what is measured at a weather station
+emcprm = calc_emc(tmpprm, rhprm)	;emcprm is equilibrium moisture content at the fuel-atm interface
 
 fm1 = where(sow .gt. 4, 35.0, 1.03 * emcprm)
 fm10 = where(sow .gt. 4, 35., 1.28 * emcprm)
 
 mcwodi = ymherb
-mcwodi = (/pregrn1/)
+mcwodi = (/pregrn/)
 mcherbi = fm1
 
 erc = prec	;establishes lat, lon, etc.
@@ -218,7 +214,7 @@ do i=0, ndays
 
         mcherb  = calc_mcherb(fm1(i, :, :), mcherbi(i, :, :), fm1000(i, :, :), ym1000, greendays, climat, hveg, annperen, x1000, ymherb, gren)
         greendays = where(hveg .eq. "greenup", greendays + 1, greendays)
-        mcwood = calc_mcwood(pregrn1, mcwodi, fm1000(i, :, :), climat, hveg, gren, ymwood)
+        mcwood = calc_mcwood(pregrn, mcwodi, fm1000(i, :, :), climat, hveg, gren, ymwood)
 
         hveg = calc_vegstage(warmdays, colddays, gdd, maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
         erc(i, :, :) = (/calc_erc(w1d, w10d, w100d, w1000d, wherb, wwood, mcherb, depth, sg1d, sg10d, sg100d, sg1000d, sgherb, sgwood, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, extmoi, hd)/)
@@ -245,7 +241,7 @@ do i = 1, dimsizes(varatts)-1     ; transfer "missing value" and "_FillValue" fr
    erc@$varatts(i)$ = r_pr->prec@$varatts(i)$
 end do
 
-w_erc->erc = erc
+w_erc->erc = erc	;transfer erc data into file
 
 end
 
