@@ -62,12 +62,12 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_fm100@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+rhmin_in+ ", "+ rhmax_in+", "+z3_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts calc_emc.ncl, calc_julian_day.ncl, calc_daylight_builtin.ncl, calc_daylight_manual.ncl, calc_pduration.ncl, calc_fm100.ncl, and fm100_main.ncl, from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+rhmin_in+ ", "+ rhmax_in+", "+z3_in
 w_fm100@history = history
 
 ; copy variables
 
-var_names = getfilevarnames (r_pr)
+var_names = getfilevarnames(r_pr)
 
 do i = 0, dimsizes(var_names)-1		;attach lat, lon, etc. to the output file
    if (var_names(i) .ne. "prec") then
@@ -78,11 +78,11 @@ end do
 time = r_tempmax->time
 
 maxtemp = r_tempmax->tmax
-maxtemp = maxtemp * 1.8 + 32
-;maxtemp = (maxtemp - 273.15) * 1.8 + 32.
+maxtemp = maxtemp * 1.8 + 32	;convert Celsius to Fahrenheit
+;maxtemp = (maxtemp - 273.15) * 1.8 + 32.	;convert Kelvin to Fahrenheit
 mintemp = r_tempmin->tmin
-mintemp = mintemp * 1.8 + 32.   ; convert from Celsius to Fahrenheit
-;mintemp = (mintemp - 273.15) * 1.8 + 32.       ;convert from Kelvin to Fahrenheit
+mintemp = mintemp * 1.8 + 32.   
+;mintemp = (mintemp - 273.15) * 1.8 + 32.
 
 minhum = r_hummin->rhmin
 maxhum = r_hummax->rhmax
@@ -137,7 +137,7 @@ do i = 1, dimsizes(varatts)-1     ; transfer "missing value" and "_FillValue" fr
    fm100@$varatts(i)$ = r_pr->prec@$varatts(i)$
 end do
 
-w_fm100->fm100 = fm100
+w_fm100->fm100 = fm100	;write fm100 data to file
 
 end
 

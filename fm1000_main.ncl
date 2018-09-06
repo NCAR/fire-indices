@@ -57,7 +57,7 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_fm1000@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+", " + rhmax_in+", "+rhmin_in+", "+z3_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts calc_emc.ncl, calc_julian_day.ncl, calc_daylight_builtin.ncl, calc_daylight_manual.ncl, calc_pduration.ncl, and fm1000_main, from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+", " + rhmax_in+", "+rhmin_in+", "+z3_in
 w_fm1000@history = history
 
 ; copy variables
