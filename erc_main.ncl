@@ -13,7 +13,6 @@ load "calc_emc.ncl"
 load "calc_x1000.ncl"
 load "calc_mcherb.ncl"
 load "calc_mcwood.ncl"
-load "calc_prelim_vegstage.ncl"
 load "calc_vegstage.ncl"
 load "calc_erc.ncl"
 
@@ -82,7 +81,7 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_erc@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts erc_main.ncl, calc_julian_day.ncl, calc_vpd.ncl, calc_gsi.ncl, normalize.ncl, find_first.ncl, adjust.ncl, calc_potential_solar.ncl, calc_sow_daily.ncl, calc_pduration.ncl, calc_point_pduration.ncl, calc_paper_pduration.ncl, calc_emc.ncl, calc_x1000.ncl, calc_mcherb.ncl, calc_mcwood.ncl, calc_prelim_vegstage.ncl, calc_vegstage.ncl, and calc_erc.ncl, from source file "+precip_in+ ", "+solrad_in+ ", "+rhmax_in+ ", "+rhmin_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+fm1000_in+ ", "+fm100_in+", "+z3_in+", "+spchum_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts erc_main.ncl, calc_julian_day.ncl, calc_vpd.ncl, calc_gsi.ncl, normalize.ncl, find_first.ncl, adjust.ncl, calc_potential_solar.ncl, calc_sow_daily.ncl, calc_pduration.ncl, calc_point_pduration.ncl, calc_paper_pduration.ncl, calc_emc.ncl, calc_x1000.ncl, calc_mcherb.ncl, calc_mcwood.ncl, calc_vegstage.ncl, and calc_erc.ncl, from source file "+precip_in+ ", "+solrad_in+ ", "+rhmax_in+ ", "+rhmin_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+fm1000_in+ ", "+fm100_in+", "+z3_in+", "+spchum_in
 w_erc@history = history
 
 ; copy variables
@@ -205,8 +204,6 @@ do i=0, ndays
 
         year = tointeger(floor(i / 365.2425))
         j_green = greenup(year, :, :)
-        hveg = calc_prelim_vegstage(hveg, warmdays, colddays, day_year(i), j_green, gdd)
-        gdd = where(warmdays .gt. 5, gdd + (maxt(i, :, :) + mint(i, :, :)) / 2. - 32., 0)
 
         x1000 = calc_x1000(fm1000(i, :, :), ym1000, yx1000, maxt(i, :, :), mint(i, :, :), hveg)
 
@@ -216,12 +213,8 @@ do i=0, ndays
         greendays = where(hveg .eq. "greenup", greendays + 1, greendays)
         mcwood = calc_mcwood(pregrn, mcwodi, fm1000(i, :, :), climat, hveg, gren, ymwood)
 
-        hveg = calc_vegstage(warmdays, colddays, gdd, maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
+        hveg = calc_vegstage(maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
         erc(i, :, :) = (/calc_erc(w1d, w10d, w100d, w1000d, wherb, wwood, mcherb, depth, sg1d, sg10d, sg100d, sg1000d, sgherb, sgwood, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, extmoi, hd)/)
-
-        colddays = where(hveg .eq. "cured" .and. mint(i, :, :) .lt. 32., colddays + 1, colddays)
-        colddays = where(hveg .eq. "greenup" .or. hveg .eq. "frozen", 0., colddays)
-        warmdays = where(maxt(i, :, :) .gt. 32., warmdays + 1, 0.)
 
         yx1000 = (/x1000/)
         ymherb = (/mcherb/)
