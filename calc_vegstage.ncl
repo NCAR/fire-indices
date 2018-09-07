@@ -1,7 +1,5 @@
 /;
-warmdays is the number of (consecutive?) days where the maximum temperature is above freezing
 colddays is the number of days where the minimum temperature below freezing
-gdd is the growing degree days
 maxt is the maximum temperature
 mint is the minimum temperature
 j_date is the day of year or julian day
@@ -11,7 +9,7 @@ mcherb is the calculated herbaceous percent moisture content
 hveg is the vegetation stage
 ;/
 
-function calc_vegstage(maxt, mint, j_date, j_green, gren, mcherb, hveg)
+function calc_vegstage(colddays, maxt, mint, j_date, j_green, gren, mcherb, hveg)
 local vegstage, prgrn_check
 begin
 
@@ -26,6 +24,7 @@ vegstage = where(hveg .eq. "greenup" .and. gren .ge. 100. .and. mcherb .ge. 120.
 vegstage = where(hveg .eq. "greenup" .and. gren .ge. 100. .and. mcherb .lt. 120., "transition", vegstage)
 vegstage = where(hveg .eq. "green" .and. mcherb .lt. 120, "transition", vegstage)
 vegstage = where(hveg .eq. "transition" .and. mcherb .le. 30., "cured", vegstage)
+vegstage = where(hveg .eq. "cured" .and. colddays .ge. 3, "frozen", vegstage)
 
 return(vegstage)
 

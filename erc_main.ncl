@@ -164,10 +164,10 @@ greendays = prec(0, :, :)
 greendays = 0.
 colddays = prec(0, :, :)
 colddays = 0.
-warmdays = prec(0, :, :)
-warmdays = 0.
-gdd = prec(0, :, :)
-gdd = 0.
+;warmdays = prec(0, :, :)
+;warmdays = 0.
+;gdd = prec(0, :, :)
+;gdd = 0.
 ymherb = prec(0, :, :)
 ymherb = 50.
 ymwood = ymherb
@@ -213,9 +213,11 @@ do i=0, ndays
         greendays = where(hveg .eq. "greenup", greendays + 1, greendays)
         mcwood = calc_mcwood(pregrn, mcwodi, fm1000(i, :, :), climat, hveg, gren, ymwood)
 
-        hveg = calc_vegstage(maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
+        hveg = calc_vegstage(colddays, maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
         erc(i, :, :) = (/calc_erc(w1d, w10d, w100d, w1000d, wherb, wwood, mcherb, depth, sg1d, sg10d, sg100d, sg1000d, sgherb, sgwood, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, extmoi, hd)/)
 
+	colddays = where(hveg .eq. "curing" .and. mint(i, :, :) .lt. 32., colddays + 1, colddays)
+	colddays = where(hveg .eq. "frozen", 0, colddays)
         yx1000 = (/x1000/)
         ymherb = (/mcherb/)
         ymwood = (/mcwood/)
