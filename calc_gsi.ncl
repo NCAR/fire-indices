@@ -30,7 +30,7 @@ tmmn1 = where(tmmn .le. -2., 0., tmmn1)
 gsi = tmmn1 * vpd1 * dayl
 
 timelen = dimsizes(gsi(:, 0,0))
-latlen = dimsizes(gsi(0, :, 0))
+latlen = dimsizes(lat)
 gsi1 = conform_dims((/timelen + 20, latlen, lonlen/), flt2dble(0.), -1)	;pad gsi with 10 zeros on either end to avoid missing values in actual data when computing average
 gsi1(10:(timelen+9), :, :) = gsi
 
