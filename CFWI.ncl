@@ -194,7 +194,7 @@ humid = humid < 100.
 humid = humid > 0.		; account for supersaturation at low temperatures or high pressures
 windsp = r_wdsp->sfcWind
 temp = r_temp->tasmax		;technically supposed to be noon temp, but tasmax is the closest thing
-temp = temp - 273.15		; only because I'm dealing with KELVIN jklfdsjfklds
+temp = temp - 273.15		; only for Kelvin
 time = r_prec->time
 
 ffmc = pr(0, :, :)		;set up correctly sized arrays with latitude, longitude attached
