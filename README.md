@@ -51,6 +51,6 @@ Currently, it only serves as an input to ERC, but may be used as a separate inde
 ## ERC 
 ERC is the Energy Release Component. Its inputs are daily maximum and minimum temperature in degrees Celsius, daily precipitation in mm, daily minimum and maximum relative humidity (0-100 scale), daily downwelling shortwave radiation in W/m^2, daily specific humidity in kg/kg, 100 hour fuel moisture, and 1000 hour fuel moisture. 
 
-Like CFWI, several intermediate steps rely on the previous day's calculations. This index is by far the most computationally complex and the most time consuming to run. Previous work suggests that it is very accurate, however.
+Like CFWI, several intermediate steps rely on the previous day's calculations. This index is by far the most computationally complex and the most time consuming to run. Previous work suggests that it is very accurate, however. ERC typically ranges from 0 to 80, where 0 is low fire danger and 80 is severe fire danger. Drier, hotter regions may get higher than 80, though, as it is an open ended scale.
 
 The code is almost exclusively adapted from code from John Abatzoglou. 
