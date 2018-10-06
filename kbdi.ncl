@@ -44,20 +44,20 @@ end
 
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-; precipitation is either pr or prec. Alter for whichever dataset is being used, lines have been marked with @@@ in comment
+; precipitation is either pr or prec. Alter for whichever dataset is being used, lines have been marked with @@@ in comment. additionally, pr needs the conversion line
 
 begin
 
 ; read in from 2 files: daily precipitation and daily maximum temperatures
 ; The following variables should be specified as command-line arguments (ncl file = \"$file\" script.ncl):
 ; precip_in = "some file"	read in
-; temper_in = "some file"	read in
+; tmpmax_in = "some file"	read in
 ; output = "kbdi.nc"	write out
 
 ;assume for now that precip is read in in mm, any conversions can be added later
 
 read_precip = addfile(precip_in, "r")
-read_temper = addfile(temper_in, "r")
+read_temper = addfile(tmpmax_in, "r")
 
 system("rm -f "+output)
 KBDI_out = addfile(output, "c") ; create new file to store KBDI
@@ -70,24 +70,24 @@ do i = 0, dimsizes(att_names)-1				;transfer global attributes of precip onto KB
 	KBDI_out@$att_names(i)$ = read_precip@$att_names$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source files "+precip_in+" and "+temper_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL script from source files "+precip_in+" and "+tmpmax_in
 KBDI_out@history = history
 
 var_names = getfilevarnames(read_precip)
 
 do i = 0, dimsizes(var_names)-1			;attach all variables but precipitation onto KBDI (lat, long, time)
-	if (var_names(i) .ne. "pr") then	;@@@
+	if (var_names(i) .ne. "prec") then	;@@@
 		KBDI_out->$var_names(i)$ = read_precip->$var_names(i)$
 	end if
 end do
 
 ;read in daily precipitation
-daily_precip = read_precip->pr	;@@@
+daily_precip = read_precip->prec	;@@@
 ;if the units of precip are kg/m^2/s then convert to mm/day with following line
-daily_precip = daily_precip * 60 * 60 * 24
+;daily_precip = daily_precip * 60 * 60 * 24
 
 ;read in maximum daily temperature
-tmax = read_temper->tasmax
+tmax = read_temper->tmax
 
 missing = ismissing(daily_precip)	; find all missing values in daily_precip
 daily_precip = where(missing, 2.54, daily_precip)	; mm of precip. Value taken from Larry's code (.1 in)
@@ -128,7 +128,7 @@ varatts = (/"units", "missing_value", "_FillValue"/)
 Q@$varatts(0)$ = "1"		;KBDI is unitless
 
 do i = 1, dimsizes(varatts)-1
-	Q@$varatts(i)$ = read_precip->pr@$varatts(i)$	;@@@
+	Q@$varatts(i)$ = read_precip->prec@$varatts(i)$	;@@@
 end do
 
 KBDI_out->KBDI = Q	
