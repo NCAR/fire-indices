@@ -48,7 +48,7 @@ r_z3 = addfile(z3_in, "r")
 system("rm -f "+output)
 w_fm1000 = addfile(output, "c")	;create output file
 
-filedimdef(w_fm1000, "day", -1, True) ; make time dimension unlimited
+filedimdef(w_fm1000, "time", -1, True) ; make time dimension unlimited
 
 ;copy/set global attributes
 att_names = getvaratts(r_pr)
