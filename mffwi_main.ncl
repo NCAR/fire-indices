@@ -1,5 +1,6 @@
 load "calc_emc.ncl"
 load "calc_mffwi.ncl"
+load "convert_temp.ncl"
 
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -42,12 +43,11 @@ wind = wind * 2.23694			; convert m/s to mph
 ;hum = r_humid->hurs			; relative humidity
 rhmin = r_rhmin->rhmin
 rhmax = r_rhmax->rhmax
-hum = (rhmax + rhmin) / 2		;calculate average of rhmax and rhmin
+hum = (rhmax + rhmin) / 2		; calculate average of rhmax and rhmin
 temp = r_temp->tmax			; assume that the index uses  maximum temperature of the day. Not specified in any paper
-temp = (temp * (9./5.)) + 32		; convert degrees C to degrees F
-;temp = 9. / 5. * (temp - 273.15) + 32.0		;convert K to degrees F
-kbdi = r_kbdi->KBDI			; not found with rest of data, calculate KBDI before calculating mFFWI
-emc = calc_emc(temp, hum)		;equilibrium moisture content
+convert_temp("degF", temp)		; convert anything to degrees Fahrenheit
+kbdi = r_kbdi->KBDI			; calculate KBDI before calculating mFFWI
+emc = calc_emc(temp, hum)		; equilibrium moisture content
 
 mffwi = calc_mFFWI(wind, hum, temp, kbdi, emc)
 

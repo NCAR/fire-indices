@@ -10,6 +10,7 @@
 ;final calculations require precipitation in inches and temperature in Fahrenheit. Currently, the program expects rain in mm and temperature in Kelvin as inputs
 
 load "~/github/fire_indices/fire-indices/calc_kbdi.ncl"
+load "~/github/fire_indices/fire-indices/convert_temp.ncl"
 
 begin
 
@@ -63,8 +64,7 @@ Q0 = daily_precip(0,:,:)	;transfer metadata to Q0
 Q0 = 100.0			;initial KBDI, taken from Larry's code it is 100, or 400 from atriplex. After KBDI hits 0 for the first time this no longer has effect
 
 ;convert temp and prec
-tmax = (tmax * (9. / 5.)) + 32.			;Celsius to Fahrenheit
-;tmax = 9. / 5. * (tmax - 273.15) + 32.0			;Kelvin to Fahrenheit
+convert_temp("degF", tmax)			;convert to Fahrenheit
 mean_ann_precip = mean_ann_precip / 25.4	;mm to inches
 daily_precip = daily_precip / 25.4
 
