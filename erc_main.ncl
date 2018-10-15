@@ -15,6 +15,7 @@ load "calc_mcherb.ncl"
 load "calc_mcwood.ncl"
 load "calc_vegstage.ncl"
 load "calc_erc.ncl"
+load "convert_temp.ncl"
 
 /;
 The following variables should be specified as command-line arguments
@@ -100,10 +101,10 @@ lon = r_pr->lon
 time = r_pr->time
 
 maxtC = r_tmax->tmax	;NOTE: temperature is actually needed in Celsius AND Fahrenheit!
-;maxtC = maxt - 273.15	;Kelvin to Celsius
+convert_temp("degC", maxtC)	;convert to Celsius if not already
 maxt = maxtC * 1.8 + 32.	;Celsius to Fahrenheit
 mintC = r_tmin->tmin
-;mintC = mint - 273.15
+convert_temp("degC", mintC)
 mint = mintC * 1.8 + 32.
 maxrh = r_rhmax->rhmax
 minrh = r_rhmin->rhmin

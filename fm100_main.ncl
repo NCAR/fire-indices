@@ -12,6 +12,7 @@ load "calc_pduration.ncl"
 load "calc_point_pduration.ncl"
 load "calc_paper_pduration.ncl"
 load "calc_fm100.ncl"
+load "convert_temp.ncl"
 
 ; Calculates fm100, of Fuel Moisture . It is an input to ERC, but is also a standalone fire index.
 
@@ -78,11 +79,9 @@ end do
 time = r_tempmax->time
 
 maxtemp = r_tempmax->tmax
-maxtemp = maxtemp * 1.8 + 32	;convert Celsius to Fahrenheit
-;maxtemp = (maxtemp - 273.15) * 1.8 + 32.	;convert Kelvin to Fahrenheit
+convert_temp("degF", maxtemp)
 mintemp = r_tempmin->tmin
-mintemp = mintemp * 1.8 + 32.   
-;mintemp = (mintemp - 273.15) * 1.8 + 32.
+convert_temp("degF", mintemp)
 
 minhum = r_hummin->rhmin
 maxhum = r_hummax->rhmax
