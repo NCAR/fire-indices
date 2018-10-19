@@ -24,7 +24,7 @@ r_prec = addfile(precip_in, "r")
 r_rhmax = addfile(rhmax_in, "r")
 r_rhmin = addfile(rhmin_in, "r")
 r_wdsp = addfile(windsp_in, "r")
-r_temp = addfile(temper_in, "r")
+r_temp = addfile(tmpmax_in, "r")
 
 system("rm -f "+output)
 w_cfwi = addfile(output, "c")
@@ -37,7 +37,7 @@ do i = 0, dimsizes(att_names) -1
 	w_cfwi@$att_names(i)$ = r_prec@$att_names(i)$
 end do
 
-history = "Create " + systemfunc("date") + " by " + systemfunc("whoami") + "@" + systemfunc("hostname") + " using NCL scripts calc_ffmc.ncl, calc_dmc.ncl, calc_dc.ncl, calc_isi.ncl, calc_bui.ncl, and cfwi_main.ncl from source files " + precip_in + ", " + rhmax_in + ", " + rhmin_in + ", " + windsp_in + ", " + temper_in
+history = "Create " + systemfunc("date") + " by " + systemfunc("whoami") + "@" + systemfunc("hostname") + " using NCL scripts calc_ffmc.ncl, calc_dmc.ncl, calc_dc.ncl, calc_isi.ncl, calc_bui.ncl, and cfwi_main.ncl from source files " + precip_in + ", " + rhmax_in + ", " + rhmin_in + ", " + windsp_in + ", " + tmpmax_in
 w_cfwi@history = history
 
 var_names = getfilevarnames(r_prec)
@@ -81,30 +81,7 @@ opt = 0		; for cd_calendar, option 5 returns an array: year (cal(0)), month (cal
 
 latlen = dimsizes(lat)
 lonlen = dimsizes(lon)
-/;
-;retrieve day of year
-cal = cd_calendar(time(0), opt)
-cal1 = tointeger(cal(0,:))		; remove degenerate dimension
-day_year = day_of_year(cal1(0), cal1(1), cal1(2))
 
-;retrieve maximum sunlight
-Le = daylight_fao56(day_year, lat)
-Le1 = Le(0, :)
-Le2 = conform_dims((/latlen, lonlen/), Le1, 0) 
-
-tempdmc = temp(0, :, :)				; set up bottom limits for temperature for dmc and dc
-tempdmc = where(tempdmc .lt. -1.1, -1.1, tempdmc)
-tempdc = temp(0, :, :)
-tempdc = where(tempdc .lt. -2.8, -2.8, tempdc)
-
-m = calc_ffmc(ffmc, humid(0, :, :), temp(0, :, :), windsp(0, :, :), pr(0, :, :))
-ffmc = 59.5 * (250. - m) / (147.2 + m)
-dmc = (/calc_dmc(dmc, tempdmc, pr(0, :, :), humid(0, :, :), Le2)/)
-dc = (/calc_dc(pr(0, :, :), tempdc, dc, Lf(cal1(1)-1))/)
-isi = (/calc_isi(windsp(0, :, :), m)/)
-bui = (/calc_bui(dmc, dc)/)
-cfwi(0, :, :) = (/calc_cfwi(bui, isi)/)
-;/
 delete_VarAtts(cfwi, -1)
 cfwi@longname = "Canadian Fire Weather Index"
 varatts = (/"units", "missing_value", "_FillValue"/)
@@ -114,6 +91,9 @@ do i = 1, dimsizes(varatts)-1
 	cfwi@$varatts(i)$ = pr@$varatts(i)$
 end do
 
+ffmc_temp = ffmc
+m = pr(0,:,:)
+m = 0.0
 ;loop runs over one time step, all of space
 do i = 0, ndays-1
 	cal = cd_calendar(time(i), opt)
@@ -127,8 +107,8 @@ do i = 0, ndays-1
 	tempdc = temp(i, :, :)
 	tempdc = tempdc > -2.8 
 
-	m = calc_ffmc(ffmc, humid(i, :, :), temp(i, :, :), windsp(i, :, :), pr(i, :, :))
-	ffmc = 59.5 * (250. - m) / (147.2 + m)
+	m = (/calc_ffmc(ffmc_temp, humid(i, :, :), temp(i, :, :), windsp(i, :, :), pr(i, :, :))/)	;ffmc is calculated and passed by reference
+	ffmc = ffmc_temp
 	dmc = (/calc_dmc(dmc, tempdmc, pr(i, :, :), humid(i, :, :), Le2)/)
 	dc = (/calc_dc(pr(i, :, :), tempdc, dc, Lf(cal1(1)-1))/)
 	isi = (/calc_isi(windsp(i, :, :), m)/)

@@ -9,6 +9,7 @@
 ;ro is daily rainfall, unadjusted
 
 ;NOTE! The return value is m, not FFMC, because m is required in later calculations. The final FFMC value is calculated in the main body of code
+
 function calc_ffmc(Fo, H, T, W, ro)		;FFMC is Fine Fuel Moisture Content
 local mo, mr, rf, Ed, Ew, ko1, kdw, m, F
 begin
@@ -30,7 +31,7 @@ m = where(mo .lt. Ew, Ew - (Ew - mo) * 10^(-kdw), m)
 m = m < 250.0
 m = m > 0.0
 
-;F = 59.5 * (250. - m) / (147.2 + m)	(Final ffmc calculation)
+Fo = 59.5 * (250. - m) / (147.2 + m)	;(Final ffmc calculation)
 
 return(m)
 
