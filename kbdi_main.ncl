@@ -87,11 +87,10 @@ do i = 1, dimsizes(varatts)-1
 	Q@$varatts(i)$ = read_precip->prec@$varatts(i)$	;@@@
 end do
 
-;KBDI_out->KBDI = Q	
+Q_temp = Q(0, :, :)
 
 ; calculate the rest of the time series of KBDI using previous Q as next Q
 do i=1, ndays-1
-	Q_temp = Q(i-1,:,:)
 	calc_kbdi(daily_precip(i,:,:), tmax(i,:,:), Q_temp, mean_ann_precip, pr )
 	Q(i,:,:) = Q_temp
 end do
