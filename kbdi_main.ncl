@@ -9,8 +9,9 @@
 
 ;final calculations require precipitation in inches and temperature in Fahrenheit. Currently, the program expects rain in mm and temperature in Kelvin as inputs
 
-load "~/github/fire_indices/fire-indices/calc_kbdi.ncl"
-load "~/github/fire_indices/fire-indices/convert_temp.ncl"
+load "calc_kbdi.ncl"
+load "convert_temp.ncl"
+load "convert_prec.ncl"
 
 begin
 
@@ -41,14 +42,9 @@ end do
 
 ;read in daily precipitation
 daily_precip = read_precip->prec	;@@@
-;if the units of precip are kg/m^2/s then convert to mm/day with following line
-;daily_precip = daily_precip * 60 * 60 * 24
 
 ;read in maximum daily temperature
 tmax = read_temper->tmax
-
-missing = ismissing(daily_precip)	; find all missing values in daily_precip
-daily_precip = where(missing, 2.54, daily_precip)	; mm of precip. Value taken from Larry's code (.1 in)
 
 ;calculate mean annual precipitation, save to variable mean_ann_precip
 total_precip = sum(daily_precip)	; add all precipitation values together.
@@ -56,7 +52,7 @@ ndaysyear = 365.2425			;change according to "calendar" attribute for time (curre
 ndays = dimsizes(read_precip->time)		; extracts number of days in a daily dataset
 nyears = ndays/ndaysyear
 mean_ann_precip = total_precip / nyears		; note that this may need to be adjusted to account for ragged edges, worked for the sample file
-;mean_ann_precip = mean_ann_precip / 25.4		; convert mean ann precip to inches from mm
+mean_ann_precip@units = daily_precip@units
 
 pr = daily_precip(0,:,:)	;transfer metadata to pr
 pr = 0.0			;pr is accumulated precipitation, assume the day before the start of the run did not have precipitation
@@ -65,9 +61,10 @@ Q0 = 100.0			;initial KBDI, taken from Larry's code it is 100, or 400 from atrip
 
 ;convert temp and prec
 convert_temp("degF", tmax)			;convert to Fahrenheit
-mean_ann_precip = mean_ann_precip / 25.4	;mm to inches
-daily_precip = daily_precip / 25.4
-
+convert_prec("inches/day", mean_ann_precip)
+convert_prec("inches/day", daily_precip)
+missing = ismissing(daily_precip)       ; find all missing values in daily_precip
+daily_precip = where(missing, .1, daily_precip)       ; mm of precip. Value taken from Larry's code (.1 in)
 
 ; calculate first step of KBDI, using Q0
 first_step = 0

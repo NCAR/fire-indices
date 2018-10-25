@@ -16,6 +16,7 @@ load "calc_mcwood.ncl"
 load "calc_vegstage.ncl"
 load "calc_erc.ncl"
 load "convert_temp.ncl"
+load "convert_prec.ncl"
 
 /;
 The following variables should be specified as command-line arguments
@@ -111,7 +112,7 @@ minrh = r_rhmin->rhmin
 temp1 = maxt - 2.
 rh1 = minrh + 2.
 prec = r_pr->prec
-prec = prec / 24.5      ;mm to inches
+convert_prec("inches/day", prec)
 rad = r_rad->rsds
 fm1000 = r_fm1000->fm1000       ;calculated in a different file
 fm100 = r_fm100->fm100

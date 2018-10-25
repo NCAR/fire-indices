@@ -14,6 +14,7 @@ load "calc_pduration.ncl"
 load "calc_point_pduration.ncl"
 load "calc_paper_pduration.ncl"
 load "convert_temp.ncl"
+load "convert_prec.ncl"
 
 /;
 The following variables should be specified as command-line arguments
@@ -79,7 +80,8 @@ minhum = r_hummin->rhmin
 maxhum = r_hummax->rhmax
 
 pr = r_pr->prec
-pr = pr / 24.5          ;mm to inches
+convert_prec("inches/day", pr)
+
 lat = r_tempmax->lat
 lon = r_tempmax->lon
 

@@ -4,6 +4,7 @@ load "calc_dc.ncl"
 load "calc_isi.ncl"
 load "calc_bui.ncl"
 load "convert_temp.ncl"
+load "convert_prec.ncl"
 load "calc_cfwi.ncl"
 
 load "crop.ncl"		;for use when paths are not set up correctly (the quick and dirty fix)
@@ -49,6 +50,7 @@ do i = 0, dimsizes(var_names)-1
 end do
 
 pr = r_prec->prec
+convert_prec("mm/day", pr)
 ;humid = r_humid->hurs
 ;humid = humid * 100		; convert to percentage 0 to 100
 ;humid = humid < 100.
