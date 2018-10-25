@@ -15,6 +15,7 @@ load "calc_point_pduration.ncl"
 load "calc_paper_pduration.ncl"
 load "convert_temp.ncl"
 load "convert_prec.ncl"
+load "convert_humid.ncl"
 
 /;
 The following variables should be specified as command-line arguments
@@ -76,8 +77,11 @@ maxtemp = r_tempmax->tmax
 convert_temp("degF", maxtemp)
 mintemp = r_tempmin->tmin
 convert_temp("degF", mintemp)
+
 minhum = r_hummin->rhmin
 maxhum = r_hummax->rhmax
+convert_humid("%", minhum)
+convert_humid("%", maxhum)
 
 pr = r_pr->prec
 convert_prec("inches/day", pr)

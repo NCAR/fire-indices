@@ -1,11 +1,12 @@
-load "calc_ffmc.ncl"
-load "calc_dmc.ncl"
-load "calc_dc.ncl"
-load "calc_isi.ncl"
-load "calc_bui.ncl"
-load "convert_temp.ncl"
-load "convert_prec.ncl"
-load "calc_cfwi.ncl"
+load "~/github/fire_indices/fire-indices/calc_ffmc.ncl"
+load "~/github/fire_indices/fire-indices/calc_dmc.ncl"
+load "~/github/fire_indices/fire-indices/calc_dc.ncl"
+load "~/github/fire_indices/fire-indices/calc_isi.ncl"
+load "~/github/fire_indices/fire-indices/calc_bui.ncl"
+load "~/github/fire_indices/fire-indices/convert_temp.ncl"
+load "~/github/fire_indices/fire-indices/convert_prec.ncl"
+load "~/github/fire_indices/fire-indices/convert_humid.ncl"
+load "~/github/fire_indices/fire-indices/calc_cfwi.ncl"
 
 load "crop.ncl"		;for use when paths are not set up correctly (the quick and dirty fix)
 ;load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/crop.ncl"	;for use in any other situation, aka the proper way
@@ -52,12 +53,11 @@ end do
 pr = r_prec->prec
 convert_prec("mm/day", pr)
 ;humid = r_humid->hurs
-;humid = humid * 100		; convert to percentage 0 to 100
-;humid = humid < 100.
-;humid = humid > 0.		; account for supersaturation at low temperatures or high pressures
 rhmax = r_rhmax->rhmax
 rhmin = r_rhmin->rhmin
 humid = (rhmin + rhmax) / 2
+humid@units = rhmax@units
+convert_humid("%", humid)
 windsp = r_wdsp->spd
 temp = r_temp->tmax		;technically supposed to be noon temp, but max temperature is the closest
 convert_temp( "degC", temp)	; convert anything into Celsius if not already

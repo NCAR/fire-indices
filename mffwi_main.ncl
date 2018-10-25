@@ -1,6 +1,7 @@
-load "calc_emc.ncl"
-load "calc_mffwi.ncl"
-load "convert_temp.ncl"
+load "~/github/fire_indices/fire-indices/calc_emc.ncl"
+load "~/github/fire_indices/fire-indices/calc_mffwi.ncl"
+load "~/github/fire_indices/fire-indices/convert_temp.ncl"
+load "~/github/fire_indices/fire-indices/convert_humid.ncl"
 
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -43,7 +44,9 @@ wind = wind * 2.23694			; convert m/s to mph
 ;hum = r_humid->hurs			; relative humidity
 rhmin = r_rhmin->rhmin
 rhmax = r_rhmax->rhmax
-hum = (rhmax + rhmin) / 2		; calculate average of rhmax and rhmin
+hum = (rhmax + rhmin) / 2.0		; calculate average of rhmax and rhmin
+hum@units = rhmax@units
+convert_humid("%", hum)
 temp = r_temp->tmax			; assume that the index uses  maximum temperature of the day. Not specified in any paper
 convert_temp("degF", temp)		; convert anything to degrees Fahrenheit
 kbdi = r_kbdi->KBDI			; calculate KBDI before calculating mFFWI

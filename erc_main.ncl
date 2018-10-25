@@ -17,6 +17,7 @@ load "calc_vegstage.ncl"
 load "calc_erc.ncl"
 load "convert_temp.ncl"
 load "convert_prec.ncl"
+load "convert_humid.ncl"
 
 /;
 The following variables should be specified as command-line arguments
@@ -107,8 +108,12 @@ maxt = maxtC * 1.8 + 32.	;Celsius to Fahrenheit
 mintC = r_tmin->tmin
 convert_temp("degC", mintC)
 mint = mintC * 1.8 + 32.
+
 maxrh = r_rhmax->rhmax
 minrh = r_rhmin->rhmin
+convert_humid("%", maxrh)
+convert_humid("%", minrh)
+
 temp1 = maxt - 2.
 rh1 = minrh + 2.
 prec = r_pr->prec

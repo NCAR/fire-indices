@@ -14,6 +14,7 @@ load "calc_paper_pduration.ncl"
 load "calc_fm100.ncl"
 load "convert_temp.ncl"
 load "convert_prec.ncl"
+load "convert_humid.ncl"
 
 ; Calculates fm100, of Fuel Moisture . It is an input to ERC, but is also a standalone fire index.
 
@@ -86,6 +87,8 @@ convert_temp("degF", mintemp)
 
 minhum = r_hummin->rhmin
 maxhum = r_hummax->rhmax
+convert_humid("%", minhum)
+convert_humid("%", maxhum)
 
 pr = r_pr->prec
 convert_prec("inches/day", pr)
