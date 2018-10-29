@@ -96,7 +96,7 @@ end do
 ffmc_temp = ffmc
 m = pr(0,:,:)
 m = 0.0
-print(time@calendar)
+
 ;loop runs over one time step, all of space
 do i = 0, ndays-1
 	cal = cd_calendar(time(i), opt)
