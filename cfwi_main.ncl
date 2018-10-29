@@ -98,7 +98,7 @@ m = pr(0,:,:)
 m = 0.0
 
 ;loop runs over one time step, all of space
-do i = 0, ndays-1
+do i = 0, ndays
 	cal = cd_calendar(time(i), opt)
 	cal1 = tointeger(cal(0,:))
 	cal1@calendar = time@calendar
