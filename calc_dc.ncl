@@ -15,7 +15,7 @@ Dr = where(rd .gt. 0., 400. * log(800. / Qr), Do)       ;only if precip
 Dr = Dr > 0.0
 
 V = (.36 * (T + 2.8)) + Lf
-V = where(V .lt. 0, 0, V)
+V = V > 0
 Drou = (Dr + .5 * V) > 0.0
 
 return(Drou)

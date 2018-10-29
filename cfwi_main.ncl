@@ -96,10 +96,12 @@ end do
 ffmc_temp = ffmc
 m = pr(0,:,:)
 m = 0.0
+print(time@calendar)
 ;loop runs over one time step, all of space
 do i = 0, ndays-1
 	cal = cd_calendar(time(i), opt)
 	cal1 = tointeger(cal(0,:))
+	cal1@calendar = time@calendar
 	day_year = day_of_year(cal1(0), cal1(1), cal1(2))
 	Le = daylight_fao56(day_year, lat)
 	Le1 = Le(0, :)
