@@ -15,7 +15,7 @@ if(any(miss)) then
 	hit = 0
 	do i=0, length-1
 		if(all(miss(i, :, :))) then
-		        print("There is a missing day of data at index " + i + "Missing data will be replaced with a 2 week average.")
+		        print("There is a missing day of data at index " + i + ". Missing data will be replaced with a 2 week average.")
 			hit = i
 		end if
 
