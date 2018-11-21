@@ -7,32 +7,39 @@ begin
 
 miss = ismissing(var)	;search for any and all missing values
 range = 7	;1/2 the size of the range you want to average over
-length = dimsizes(var)
+length = dimsizes(var(:, 0, 0))		; length time
 
 if(any(miss)) then
-	print("There are missing data points. Missing data will be replaced with a 2 week average.")
-	index = ind(miss)
-	print("There is a missing data point at index = " + index)
-	id = 0
+	prev = 0
 	val = 1
-	do i=0, dimsizes(index)-1
-		if((index(i) - id) .eq. 1) then
+	hit = 0
+	do i=0, length-1
+		if(all(miss(i, :, :))) then
+		        print("There is a missing day of data at index " + i + "Missing data will be replaced with a 2 week average.")
+			hit = i
+		end if
+
+		if((hit - prev) .eq. 1) then
 			val = val + 1
 		else
 			val = 1
 		end if
 
 		if(val .gt. 3) then
-			print("More than 3 consecutive missing data points have been found. Exiting.")
+			print("More than 3 consecutive missing days have been found. Exiting.")
 			exit
 		end if
 
-		id = index(i)
-		low = (id - range) > 0
-		high = (id + range) < (length - 1)
-		average = avg(var(low : high))
-		var(id) = average
+		low = (i - range) > 0
+		high = (i + range) < (length - 1)
+		if(all(miss(i, :, :))) then
+			av = dim_avg_n_Wrap(var(low : high, :, :), 0)
+			var(i, :, :) = av
+		end if
+		
+		prev = i
 	end do
 end if
+
 
 end
