@@ -3,6 +3,7 @@ local flag, size1, size2, time_diff
 begin
 
 flag = 1
+
 size1 = dimsizes(time1)
 size2 = dimsizes(time2)
 if(size1 .ne. size2) then
@@ -20,7 +21,7 @@ end if
 time_diff = time1(size1-1) - time2(size2-1)
 if(time_diff .ge. 1 .or. time_diff .le. -1) then
         print("The ending date of the variables does not align within a day. End date of time1 is " + time1(size1-1) + " and end date of time2 is " + time2(size2-1))
-        flag = 0
+	 flag = 0
 end if
 
 return(flag)
