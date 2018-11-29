@@ -15,6 +15,8 @@ load "calc_fm100.ncl"
 load "convert_temp.ncl"
 load "convert_prec.ncl"
 load "convert_humid.ncl"
+load "check_time.ncl"
+load "clip_time.ncl"
 
 ; Calculates fm100, of Fuel Moisture . It is an input to ERC, but is also a standalone fire index.
 
@@ -52,6 +54,31 @@ r_hummin = addfile(rhmin_in, "r")
 r_hummax = addfile(rhmax_in, "r")
 r_pr = addfile(precip_in, "r")
 r_z3 = addfile(z3_in, "r")
+
+timeTA = r_tempmax->time
+timeTI = r_tempmin->time
+timeHA = r_hummax->time
+timeHI = r_hummin->time
+timeP = r_pr->time
+
+check = check_time("maximum temperature", "minimum temperature", timeTA, timeTI)
+check = check + check_time("minimum temperature", "maximum relative humidity", timeTI, timeHA)
+check = check + check_time("maximum relative humidity", "minimum relative humidity", timeHA, timeHI)
+check = check + check_time("minimum relative humidity", "precipitation", timeHI, timeP)
+
+maximum = timeTA(dimsizes(timeTA)-1)
+minimum = timeTA(0)
+if(check .lt. 4) then	;check should sum to 4 if all variables have same time limits
+        clip_time(timeTI, minimum, maximum)	;procedure clip_time finds the largest minimum and smallest maximum to find a uniform timeframe across all source files
+        clip_time(timeHA, minimum, maximum)
+	clip_time(timeHI, minimum, maximum)
+        clip_time(timeP, minimum, maximum)
+        print("Overlapping time limits are " + minimum + " to " + maximum)
+        exit()
+end if
+
+print("Time limits match on all variables")
+
 
 system("rm -f "+output)
 w_fm100 = addfile(output, "c")	;create output file

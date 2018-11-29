@@ -18,6 +18,8 @@ load "calc_erc.ncl"
 load "convert_temp.ncl"
 load "convert_prec.ncl"
 load "convert_humid.ncl"
+load "check_time.ncl"
+load "clip_time.ncl"
 
 /;
 The following variables should be specified as command-line arguments
@@ -71,6 +73,26 @@ r_huss = addfile(spchum_in, "r")
 r_z3 = addfile(z3_in, "r")
 r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
 ;r_elev = addfile(elev_in, "r")
+
+; if fm100 and fm1000 have been calculated, temperature, precipitation, and humidity must already match in every dimension. Only need to check time for specific humidity, solar radiation compared to fm100
+timeSH = r_huss->time
+timeR = r_rad->time
+time100 = r_fm100->time
+
+check = check_time("specific humidity", "solar radiation", timeSH, timeR)
+check = check + check_time("solar radiation", "FM100", timeR, time100)
+
+maximum = time100(dimsizes(time100)-1)
+minimum = time100(0)
+if(check .lt. 2) then           ;procedure clip_time finds the largest minimum and smallest maximum to find a uniform timeframe across all source files
+	clip_time(timeSH, minimum, maximum)
+	clip_time(timeR, minimum, maximum)
+        print("Overlapping time limits are " + minimum + " to " + maximum)
+        exit()
+end if
+
+print("Time limits match on all variables")
+
 
 system("rm -f "+output)
 w_erc = addfile(output, "c") ;create new file to store erc

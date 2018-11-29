@@ -1,12 +1,14 @@
-load "~/github/fire_indices/fire-indices/calc_ffmc.ncl"
-load "~/github/fire_indices/fire-indices/calc_dmc.ncl"
-load "~/github/fire_indices/fire-indices/calc_dc.ncl"
-load "~/github/fire_indices/fire-indices/calc_isi.ncl"
-load "~/github/fire_indices/fire-indices/calc_bui.ncl"
-load "~/github/fire_indices/fire-indices/convert_temp.ncl"
-load "~/github/fire_indices/fire-indices/convert_prec.ncl"
-load "~/github/fire_indices/fire-indices/convert_humid.ncl"
-load "~/github/fire_indices/fire-indices/calc_cfwi.ncl"
+load "calc_ffmc.ncl"
+load "calc_dmc.ncl"
+load "calc_dc.ncl"
+load "calc_isi.ncl"
+load "calc_bui.ncl"
+load "convert_temp.ncl"
+load "convert_prec.ncl"
+load "convert_humid.ncl"
+load "calc_cfwi.ncl"
+load "check_time.ncl"
+load "clip_time.ncl"
 
 load "crop.ncl"		;for use when paths are not set up correctly (the quick and dirty fix)
 ;load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/crop.ncl"	;for use in any other situation, aka the proper way
@@ -22,11 +24,32 @@ load "crop.ncl"		;for use when paths are not set up correctly (the quick and dir
 begin
 
 r_prec = addfile(precip_in, "r")
-;r_humid = addfile(humid_in, "r")
-r_rhmax = addfile(rhmax_in, "r")
-r_rhmin = addfile(rhmin_in, "r")
+r_humid = addfile(humid_in, "r")
+;r_rhmax = addfile(rhmax_in, "r")
+;r_rhmin = addfile(rhmin_in, "r")
 r_wdsp = addfile(windsp_in, "r")
 r_temp = addfile(tmpmax_in, "r")
+
+timeW = r_wind->time
+timeT = r_temp->time
+timeH = r_humid->time
+timeP = r_prec->time
+
+check = check_time("windspeed", "temperature", timeW, timeT)
+check = check + check_time("temperature", "relative humidity", timeT, timeH)
+check = check + check_time("relative humidity", "precipitation", timeH, timeP)
+
+maximum = timeW(dimsizes(timeW)-1)
+minimum = timeW(0)
+if(check .lt. 3) then	;3 is sum of all checks, if any returned 0 then time limits don't match
+        clip_time(timeT, minimum, maximum)	;procedure clip_time finds the largest minimum and smallest maximum to find a uniform timeframe across all source files
+        clip_time(timeH, minimum, maximum)
+        clip_time(timeP, minimum, maximum)
+        print("Overlapping time limits are " + minimum + " to " + maximum)
+        exit
+end if
+
+print("Time limits match on all variables")
 
 system("rm -f "+output)
 w_cfwi = addfile(output, "c")

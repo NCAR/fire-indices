@@ -12,11 +12,25 @@
 load "calc_kbdi.ncl"
 load "convert_temp.ncl"
 load "convert_prec.ncl"
+load "check_time.ncl"
+load "clip_time.ncl"
 
 begin
 
 read_precip = addfile(precip_in, "r")
 read_temper = addfile(tmpmax_in, "r")
+
+timeP = read_precip->time
+timeT = read_temper->time
+check = check_time("precipitation", "temperature", timeP, timeT)
+
+maximum = timeP(dimsizes(timeP)-1)
+minimum = timeP(0)
+if(check .eq. 0) then		;procedure clip_time finds the largest minimum and smallest maximum to create a uniform timeframe across all source files
+	clip_time(timeT, minimum, maximum)
+	print("Overlapping time limits are " + minimum + " to " + maximum)
+	exit()
+end if
 
 system("rm -f "+output)
 KBDI_out = addfile(output, "c") ; create new file to store KBDI
@@ -46,10 +60,19 @@ daily_precip = read_precip->prec	;@@@
 ;read in maximum daily temperature
 tmax = read_temper->tmax
 
+;check for missing values and fill them
+miss_tmax = any(ismissing(tmax))
+miss_prec = any(ismissing(daily_precip))
+
+if(miss_prec) then
+	missing = ismissing(daily_precip)       ; find all missing values in daily_precip
+	daily_precip = where(missing, .1, daily_precip)       ; mm of precip. Value taken from Larry's code (.1 in)
+end if
+
 ;calculate mean annual precipitation, save to variable mean_ann_precip
 total_precip = sum(daily_precip)	; add all precipitation values together.
 ndaysyear = 365.2425			;change according to "calendar" attribute for time (currently set for standard)
-ndays = dimsizes(read_precip->time)		; extracts number of days in a daily dataset
+ndays = read_precip->time		; extracts number of days in a daily dataset
 nyears = ndays/ndaysyear
 mean_ann_precip = total_precip / nyears		; note that this may need to be adjusted to account for ragged edges, worked for the sample file
 mean_ann_precip@units = daily_precip@units
