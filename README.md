@@ -6,6 +6,8 @@ Fire indices can show the current fire danger, the severity of drought in an are
 
 Please note that all units mentioned are the ones that the files are currently set up to use, but will most likely be modified to be more consistent. All temperature inputs can be input as Kelvin, Celsius, or Fahrenheit. All precipitation inputs can be input as mm/day or kg m-2 s-1. Relative humidity inputs can be on a 0-1 scale (units = "1") or 0-100 scale (units = %)
 
+All main files (except SPI3) have built-in checks that ensure that the length of the time attribute in every file is the same, and that their start and end dates match within 24 hours. 
+
 ## SPI3
 SPI3 is the 3 month standard precipitation index. The only input into SPI3 is monthly precipitation in any units.
 
