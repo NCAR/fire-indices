@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  This function calculates EMC, or equilibrium moisture content
  T is temperature
  H is humidity

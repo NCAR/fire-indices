@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  tmax is maximum daily temperature, in Celsius
  tmin is the minimum daily temperature, in Celsius
  sph is specific humidity

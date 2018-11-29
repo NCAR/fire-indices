@@ -1,4 +1,9 @@
-;repmiss can be inserted as a check into any script where missing values may exist in a set. It replaces missing values with a two week average (one week back, one week forward).
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
+;repmiss can be used where missing values may exist in a set. It replaces missing values with a two week average (one week back, one week forward).
 ;If more than 3 contiguous datapoints are missing, it quits.
 
 procedure repmiss(var)

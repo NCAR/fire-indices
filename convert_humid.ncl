@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
 procedure convert_humid(unit, rh)
 begin
 if(unit .ne. rh@units) then

@@ -1,3 +1,6 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
 
 ;Do is the previous day's DC
 ;Lf is an adjustment to length of day

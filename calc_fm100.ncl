@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  emcbar is average equilibrium moisture content
  pptdur is precipitation duration
  yfm is yesterday's fm100

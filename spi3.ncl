@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
 ; NCL script to calculate 3 month spi from precipitation
 
 ;load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"

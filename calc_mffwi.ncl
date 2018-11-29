@@ -1,3 +1,6 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
 
 ;Calculate modified Fosberg Fire Weather Index
 ;daily index

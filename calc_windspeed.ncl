@@ -1,3 +1,7 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
 ;calculate windspeed from east/west and north/south components
 ;whatever units come in go out
 ;note that this function is only necessary if no sfcWind data is available and vas and uas are input instead.

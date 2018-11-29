@@ -1,4 +1,9 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
+/;
  This function is an alternative to the built in NCL function to calculate the number of daylight hours
  j_date is day of year
  lat is latitude

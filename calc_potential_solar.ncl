@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  lat is latitude
  day is the julian day, or day of year (1 to 365)
  Z is elevation. If elevation unknown, input Z = 500

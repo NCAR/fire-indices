@@ -1,3 +1,7 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
 load "calc_daylight_manual.ncl"
 load "calc_daylight_builtin.ncl"
 

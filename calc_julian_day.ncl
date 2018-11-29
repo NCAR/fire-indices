@@ -1,3 +1,7 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
 ;give it time as is written in netCDF file and it returns the day of year
 function calc_julian_day(time)
 local opt, cal, cal1, day_year

@@ -1,3 +1,7 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
 ; unit is the temperature scale to convert to. temp is an array of temperature values
 
 procedure convert_temp( unit, temp )

@@ -1,3 +1,7 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
 ;m is an intermediate step from FFMC
 
 function calc_isi(W, m)                      ; ISI is Initial Spread Index

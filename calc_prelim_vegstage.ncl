@@ -1,4 +1,9 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
+/;
  hveg is the vegetation stage
  warmdays is the number of consecutive days above freezing
  colddays is the number of days below freezing

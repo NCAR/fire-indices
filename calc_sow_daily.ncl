@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  rad is solar radiation
  ppt is hourly precipitation amount in inches/hr (sum of all precip over 24 hrs) / (24 hrs)
  maxrad is clear sky radiation

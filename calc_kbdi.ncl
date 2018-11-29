@@ -1,3 +1,7 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
 ; daily data must be fed into the program
 ; precip_d is daily precipitation. read in in mm
 ; maxtemp is daily maximum temperature. read in in deg C

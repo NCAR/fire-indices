@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
  err = NhlGetErrorObjectId()
   setvalues err
     "errLevel" : "Fatal"          ; only report Fatal errors

@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  mc1 is 1 hour fuel moisture
  mcherbi is mcherb the day before greenup with maximum 30 percent
  mc1000 is 1000 hour fuel moisture

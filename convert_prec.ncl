@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
 procedure convert_prec(unit, pr)
 begin
 if(unit .ne. pr@units) then

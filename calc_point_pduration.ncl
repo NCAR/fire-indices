@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  z3 is a constant corresponding to latitude and longitude
  ppt is precipitation amount
  lat is latitude

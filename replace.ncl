@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
 This script implements the repmiss procedure. It takes one input named infile, which can be any variable, and applies the repmiss procedure.
 ;/
 

@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
 ; kbdi main
 ; precipitation is either pr or prec. Alter for whichever dataset is being used, lines have been marked with @@@ in comment. additionally, pr needs the conversion line
 

@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  gsix is normalized GSI, or growing season index
  j_date is the day of year
  latlen is the number of latitude marks

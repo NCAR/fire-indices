@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  prgrn is a constant selected based on climat
  mc1000 is the 1000 hour fuel moisture
  hveg is the vegetation stage

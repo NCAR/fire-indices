@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  This procedure adjusts the observed temperature and humidity at weather stations to reflect the conditions at the fuel-atmosphere interface
  sowc are State of Weather Codes
  T is temperature and H is humidity

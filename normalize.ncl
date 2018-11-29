@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  gsi is growing season index
  this function is necessary to ensure that greenup can be initialized everywhere by normalizing GSI
 ;/

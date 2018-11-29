@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
 ;load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/crop.ncl"   ;the proper way
 load "crop.ncl"                                         ;only for when path is not set correctly
 

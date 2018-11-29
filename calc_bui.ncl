@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
 ;P is DMC, D is DC
 
 function calc_bui(P, D)                      ; BUI is Build Up Index

@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
 procedure clip_time(time, minimum, maximum)
 local length
 begin

@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
 load "calc_ffmc.ncl"
 load "calc_dmc.ncl"
 load "calc_dc.ncl"

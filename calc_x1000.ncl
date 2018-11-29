@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  mc1000 is percent moisture content for 1000-hour timelag
  yx1000 is yesterday's x1000
  maxt is maximum daily temperature

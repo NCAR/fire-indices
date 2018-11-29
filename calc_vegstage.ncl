@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
 colddays is the number of days where the minimum temperature below freezing
 maxt is the maximum temperature
 mint is the minimum temperature

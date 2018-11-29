@@ -1,4 +1,8 @@
 /;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+/;
  ppt is amount of precipitation
  lat and lon are latitude and longitude
  climat is NFDRS climate class

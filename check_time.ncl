@@ -1,3 +1,8 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
+
 function check_time( name1, name2, time1, time2)
 local flag, size1, size2, time_diff, time1, time2
 begin

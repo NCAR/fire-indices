@@ -1,3 +1,7 @@
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
+
 
 ;Po is the previous day's DMC
 ; Le is length of day/ amount of sunlight
