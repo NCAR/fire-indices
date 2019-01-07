@@ -75,9 +75,10 @@ if(miss_prec) then
 end if
 
 ;calculate mean annual precipitation, save to variable mean_ann_precip
-total_precip = sum(daily_precip)	; add all precipitation values together.
+;total_precip = sum(daily_precip)	; add all precipitation values together.
+total_precip = dim_sum_n(daily_precip, 0)
 ndaysyear = 365.2425			;change according to "calendar" attribute for time (currently set for standard)
-ndays = read_precip->time		; extracts number of days in a daily dataset
+ndays = dimsizes(read_precip->time)		; extracts number of days in a daily dataset
 nyears = ndays/ndaysyear
 mean_ann_precip = total_precip / nyears		; note that this may need to be adjusted to account for ragged edges, worked for the sample file
 mean_ann_precip@units = daily_precip@units
