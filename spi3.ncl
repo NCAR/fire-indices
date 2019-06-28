@@ -12,12 +12,12 @@
 ;; The following variables should be specified as command-line arguments
 ;; e.g.: ncl file=\"$file\" script.ncl
 
-;precip_in = "pr.eval.ERA-Int.RegCM4.mon.NAM-22i.raw.nc" ;read from here
+;precfile = "pr.eval.ERA-Int.RegCM4.mon.NAM-22i.raw.nc" ;read from here
 ;output = "spi3.nc"  ;write to here
 
 begin
 
-read_prec = addfile(precip_in, "r") ;read in monthly precip data
+read_prec = addfile(precfile, "r") ;read in monthly precip data
 
 system("rm -f "+output) 
 spi_out = addfile(output, "c") ;create new file to store three month spi (current and previous lines)

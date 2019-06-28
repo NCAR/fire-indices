@@ -28,11 +28,11 @@ load "clip_time.ncl"
 The following variables should be specified as command-line arguments
  e.g.: ncl file=\"$file\" script.ncl
 
-precip_in
-tmpmax_in
-tmpmin_in
-rhmax_in
-rhmin_in
+precfile
+tmaxfile
+tminfile
+rhmaxfile
+rhminfile
 z3_in
 output
 
@@ -48,11 +48,11 @@ Alternatively, discard conversions in script and read in precip in inches, tempe
 begin
 
 ;read in all inputs
-r_tempmax = addfile(tmpmax_in, "r")
-r_tempmin = addfile(tmpmin_in, "r")
-r_hummin = addfile(rhmin_in, "r")
-r_hummax = addfile(rhmax_in, "r")
-r_pr = addfile(precip_in, "r")
+r_tempmax = addfile(tmaxfile, "r")
+r_tempmin = addfile(tminfile, "r")
+r_hummin = addfile(rhminfile, "r")
+r_hummax = addfile(rhmaxfile, "r")
+r_pr = addfile(precfile, "r")
 r_z3 = addfile(z3_in, "r")
 
 timeTA = r_tempmax->time
@@ -91,7 +91,7 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_fm1000@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts calc_emc.ncl, calc_julian_day.ncl, calc_daylight_builtin.ncl, calc_daylight_manual.ncl, calc_pduration.ncl, and fm1000_main, from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+", " + rhmax_in+", "+rhmin_in+", "+z3_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts calc_emc.ncl, calc_julian_day.ncl, calc_daylight_builtin.ncl, calc_daylight_manual.ncl, calc_pduration.ncl, and fm1000_main, from source files "+precfile+ ", "+tmaxfile+ ", "+tminfile+", " + rhmaxfile+", "+rhminfile+", "+z3_in
 w_fm1000@history = history
 
 ; copy variables

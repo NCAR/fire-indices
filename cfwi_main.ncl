@@ -21,19 +21,19 @@ load "crop.ncl"		;for use when paths are not set up correctly (the quick and dir
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 ; main body of code (finally)
-; command line inputs are: precip_in = daily precipitation in mm
-;			humid_in = daily relative humidity
-;			windsp_in = wind speed in m/s
-;			temper_in = daily maximum temperature in Celsius
+; command line inputs are: precfile = daily precipitation in mm
+;			hursfile = daily relative humidity
+;			spdfile = wind speed in m/s
+;			tmaxfile = daily maximum temperature in Celsius
 
 begin
 
-r_prec = addfile(precip_in, "r")
-r_humid = addfile(humid_in, "r")
-;r_rhmax = addfile(rhmax_in, "r")
-;r_rhmin = addfile(rhmin_in, "r")
-r_wdsp = addfile(windsp_in, "r")
-r_temp = addfile(tmpmax_in, "r")
+r_prec = addfile(precfile, "r")
+r_humid = addfile(hursfile, "r")
+;r_rhmax = addfile(rhmaxfile, "r")
+;r_rhmin = addfile(rhminfile, "r")
+r_wdsp = addfile(spdfile, "r")
+r_temp = addfile(tmaxfile, "r")
 
 timeW = r_wind->time
 timeT = r_temp->time
@@ -67,7 +67,7 @@ do i = 0, dimsizes(att_names) -1
 	w_cfwi@$att_names(i)$ = r_prec@$att_names(i)$
 end do
 
-history = "Create " + systemfunc("date") + " by " + systemfunc("whoami") + "@" + systemfunc("hostname") + " using NCL scripts calc_ffmc.ncl, calc_dmc.ncl, calc_dc.ncl, calc_isi.ncl, calc_bui.ncl, and cfwi_main.ncl from source files " + precip_in + ", " + rhmax_in + ", " + rhmin_in + ", " + windsp_in + ", " + tmpmax_in
+history = "Create " + systemfunc("date") + " by " + systemfunc("whoami") + "@" + systemfunc("hostname") + " using NCL scripts calc_ffmc.ncl, calc_dmc.ncl, calc_dc.ncl, calc_isi.ncl, calc_bui.ncl, and cfwi_main.ncl from source files " + precfile + ", " + hursfile + ", " + spdfile + ", " + tmaxfile
 w_cfwi@history = history
 
 var_names = getfilevarnames(r_prec)

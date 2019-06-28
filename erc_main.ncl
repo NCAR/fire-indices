@@ -30,14 +30,14 @@ load "clip_time.ncl"
 The following variables should be specified as command-line arguments
  e.g.: ncl file=\"$file\" script.ncl
 
-precip_in
-solrad_in
-rhmax_in
-rhmin_in
-tmpmax_in
-tmpmin_in
-fm1000_in
-fm100_in
+precfile
+rsdsfile
+rhmaxfile
+rhminfile
+tmaxfile
+tminfile
+fm1000file
+fm100file
 output
 
 optionally:
@@ -66,16 +66,17 @@ time
 
 begin
 
-r_pr = addfile(precip_in, "r")
-r_rad = addfile(solrad_in, "r")
-r_rhmax = addfile(rhmax_in, "r")
-r_rhmin = addfile(rhmin_in, "r")
-r_tmax = addfile(tmpmax_in, "r")
-r_tmin = addfile(tmpmin_in, "r")
-r_fm1000 = addfile(fm1000_in, "r")
-r_fm100 = addfile(fm100_in, "r")
+r_pr = addfile(precfile, "r")
+r_rad = addfile(rsdsfile, "r")
+r_rhmax = addfile(rhmaxfile, "r")
+r_rhmin = addfile(rhminfile, "r")
+r_tmax = addfile(tmaxfile, "r")
+r_tmin = addfile(tminfile, "r")
+r_fm1000 = addfile(fm1000file, "r")
+r_fm100 = addfile(fm100file, "r")
 r_huss = addfile(spchum_in, "r")
-r_z3 = addfile(z3_in, "r")
+;r_z3 = addfile(z3_in, "r")
+r_z3 = addfile("pdur_jolly_regrid.nc", "r")
 r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
 ;r_elev = addfile(elev_in, "r")
 
@@ -111,7 +112,7 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_erc@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts erc_main.ncl, calc_julian_day.ncl, calc_vpd.ncl, calc_gsi.ncl, normalize.ncl, find_first.ncl, adjust.ncl, calc_potential_solar.ncl, calc_sow_daily.ncl, calc_pduration.ncl, calc_point_pduration.ncl, calc_paper_pduration.ncl, calc_emc.ncl, calc_x1000.ncl, calc_mcherb.ncl, calc_mcwood.ncl, calc_vegstage.ncl, and calc_erc.ncl, from source file "+precip_in+ ", "+solrad_in+ ", "+rhmax_in+ ", "+rhmin_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+fm1000_in+ ", "+fm100_in+", "+z3_in+", "+spchum_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts erc_main.ncl, calc_julian_day.ncl, calc_vpd.ncl, calc_gsi.ncl, normalize.ncl, find_first.ncl, adjust.ncl, calc_potential_solar.ncl, calc_sow_daily.ncl, calc_pduration.ncl, calc_point_pduration.ncl, calc_paper_pduration.ncl, calc_emc.ncl, calc_x1000.ncl, calc_mcherb.ncl, calc_mcwood.ncl, calc_vegstage.ncl, and calc_erc.ncl, from source file "+precfile+ ", "+rsdsfile+ ", "+rhmaxfile+ ", "+rhminfile+ ", "+tmaxfile+ ", "+tminfile+ ", "+fm1000file+ ", "+fm100file+", "+z3_in+", "+spchum_in
 w_erc@history = history
 
 ; copy variables

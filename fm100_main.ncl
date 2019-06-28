@@ -29,11 +29,11 @@ load "clip_time.ncl"
 The following variables should be specified as command-line arguments
  e.g.: ncl file=\"$file\" script.ncl
 
-precip_in
-tmpmax_in
-tmpmin_in
-rhmax_in
-rhmin_in
+precfile
+tmaxfile
+tminfile
+rhmaxfile
+rhminfile
 z3_in
 output (the file to be written to)
 
@@ -53,12 +53,13 @@ begin
 ;read in precip
 ;read in precip coefficients
 
-r_tempmax = addfile(tmpmax_in, "r")
-r_tempmin = addfile(tmpmin_in, "r")
-r_hummin = addfile(rhmin_in, "r")
-r_hummax = addfile(rhmax_in, "r")
-r_pr = addfile(precip_in, "r")
-r_z3 = addfile(z3_in, "r")
+r_tempmax = addfile(tmaxfile, "r")
+r_tempmin = addfile(tminfile, "r")
+r_hummin = addfile(rhminfile, "r")
+r_hummax = addfile(rhmaxfile, "r")
+r_pr = addfile(precfile, "r")
+;r_z3 = addfile(z3_in, "r")
+r_z3 = addfile("pdur_jolly_regrid.nc", "r")
 
 timeTA = r_tempmax->time
 timeTI = r_tempmin->time
@@ -97,7 +98,7 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_fm100@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts calc_emc.ncl, calc_julian_day.ncl, calc_daylight_builtin.ncl, calc_daylight_manual.ncl, calc_pduration.ncl, calc_fm100.ncl, and fm100_main.ncl, from source files "+precip_in+ ", "+tmpmax_in+ ", "+tmpmin_in+ ", "+rhmin_in+ ", "+ rhmax_in+", "+z3_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts calc_emc.ncl, calc_julian_day.ncl, calc_daylight_builtin.ncl, calc_daylight_manual.ncl, calc_pduration.ncl, calc_fm100.ncl, and fm100_main.ncl, from source files "+precfile+ ", "+tmaxfile+ ", "+tminfile+ ", "+rhminfile+ ", "+ rhmaxfile+", "+z3_in
 w_fm100@history = history
 
 ; copy variables

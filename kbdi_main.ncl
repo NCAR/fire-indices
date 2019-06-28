@@ -3,8 +3,8 @@
 
 ; read in from 2 files: daily precipitation and daily maximum temperatures
 ; The following variables should be specified as command-line arguments (ncl file = \"$file\" script.ncl):
-; precip_in = \"some file\"	read in
-; tmpmax_in = \"some file\"	read in
+; precfile = \"some file\"	read in
+; tmaxfile = \"some file\"	read in
 ; output = \"kbdi.nc\"	write out
 
 load "calc_kbdi.ncl"
@@ -15,8 +15,8 @@ load "clip_time.ncl"
 
 begin
 
-read_precip = addfile(precip_in, "r")
-read_temper = addfile(tmpmax_in, "r")
+read_precip = addfile(precfile, "r")
+read_temper = addfile(tmaxfile, "r")
 
 timeP = read_precip->time
 timeT = read_temper->time
@@ -41,7 +41,7 @@ do i = 0, dimsizes(att_names)-1				;transfer global attributes of precip onto KB
 	KBDI_out@$att_names(i)$ = read_precip@$att_names$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts check_time.ncl, clip_time.ncl, concert_prec.ncl, concert_temp.ncl, calc_kbdi.ncl, and kbdi_main.ncl from source files "+precip_in+" and "+tmpmax_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts check_time.ncl, clip_time.ncl, concert_prec.ncl, concert_temp.ncl, calc_kbdi.ncl, and kbdi_main.ncl from source files "+precfile+" and "+tmaxfile
 KBDI_out@history = history
 
 var_names = getfilevarnames(read_precip)

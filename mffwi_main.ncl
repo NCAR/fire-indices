@@ -13,14 +13,14 @@ load "clip_time.ncl"
 begin
 
 ;read in from four files: surface wind, daily maximum temperature, daily average humidity, daily kbdi
-; on command line, windsp_in, temper_in, kbdi_in, and humid_in must be specified, with "output" for file to write to
+; on command line, spdfile, tmaxfile, kbdifile, and hursfile must be specified, with "output" for file to write to
 ;if average humidity not available, input maximum and minimum humidity and do a simple average (currently set up to do this)
-r_wind = addfile(windsp_in, "r")
-r_temp = addfile(tmpmax_in, "r")
-r_humid = addfile(humid_in, "r")	;when average humidity available
-;r_rhmax = addfile(rhmax_in, "r")
-;r_rhmin = addfile(rhmin_in, "r")
-r_kbdi = addfile(kbdi_in, "r")	;open all data
+r_wind = addfile(spdfile, "r")
+r_temp = addfile(tmaxfile, "r")
+r_humid = addfile(hursfile, "r")	;when average humidity available
+;r_rhmax = addfile(rhmaxfile, "r")
+;r_rhmin = addfile(rhminfile, "r")
+r_kbdi = addfile(kbdifile, "r")	;open all data
 
 timeW = r_wind->time
 timeT = r_temp->time
@@ -54,7 +54,7 @@ do i = 0, dimsizes(att_names)-1
 	mffwi_out@$att_names$ = r_temp@$att_names$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts mffwi_main.ncl, calc_emc.ncl, calc_mffwi.ncl, convert_temp.ncl, convert_humid.ncl, check_time.ncl, and clip_time.ncl from source files "+windsp_in+", "+tmpmax_in+", "+humid_in+", and "+kbdi_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts mffwi_main.ncl, calc_emc.ncl, calc_mffwi.ncl, convert_temp.ncl, convert_humid.ncl, check_time.ncl, and clip_time.ncl from source files "+spdfile+", "+tmaxfile+", "+hursfile+", and "+kbdifile
 mffwi_out@history = history
 
 var_names = getfilevarnames(r_temp)
