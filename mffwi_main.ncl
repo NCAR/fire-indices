@@ -2,8 +2,6 @@
 2018, Copyright University Corporation for Atmospheric Research
 ;/
 
-
-load "calc_emc.ncl"
 load "calc_mffwi.ncl"
 load "convert_temp.ncl"
 load "convert_humid.ncl"
@@ -56,7 +54,7 @@ do i = 0, dimsizes(att_names)-1
 	mffwi_out@$att_names$ = r_temp@$att_names$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts mffwi_main.ncl, from source files "+windsp_in+", "+tmpmax_in+", "+humid_in+", and "+kbdi_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts mffwi_main.ncl, calc_emc.ncl, calc_mffwi.ncl, convert_temp.ncl, convert_humid.ncl, check_time.ncl, and clip_time.ncl from source files "+windsp_in+", "+tmpmax_in+", "+humid_in+", and "+kbdi_in
 mffwi_out@history = history
 
 var_names = getfilevarnames(r_temp)
@@ -78,18 +76,8 @@ convert_humid("%", hum)
 temp = r_temp->tmax			; assume that the index uses  maximum temperature of the day. Not specified in any paper
 convert_temp("degF", temp)		; convert anything to degrees Fahrenheit
 kbdi = r_kbdi->KBDI			; calculate KBDI before calculating mFFWI
-emc = calc_emc(temp, hum)		; equilibrium moisture content
 
-mffwi = calc_mFFWI(wind, hum, temp, kbdi, emc)
-
-delete_VarAtts(mffwi, -1)		;get rid of superfluous attributes
-mffwi@long_name = "modified Fosberg Fire Weather Index"
-varatts = (/"units","missing_value","_FillValue"/)
-mffwi@$varatts(0)$ = "1"	;mFFWI is unitless
-
-do i = 1, dimsizes(varatts) -1
-	mffwi@$varatts(i)$ = r_temp->tmax@$varatts(i)$
-end do
+mffwi = calc_mFFWI(wind, hum, temp, kbdi)
 
 mffwi_out->mffwi = mffwi	;create mffwi variable, write mffwi values in output file
 
