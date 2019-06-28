@@ -3,11 +3,9 @@
 ;/
 
 ; daily data must be fed into the program
-; precip_d is daily precipitation
-; maxtemp is daily maximum temperature
-; Q is the initial (previous day's) KBDI
-; annual_pr is the mean annual precipitation. read in in mm
-; precip_acc is the accumulated precipitation over contiguous days
+; precip_d is daily precipitation in inches/day
+; maxtemp is daily maximum temperature in Fahrenheit
+; annual_pr is the mean annual precipitation in inches/day
 
 function calc_kbdi ( daily_precip, tmax, annual_pr )
 local dQ, precip_adj
@@ -20,7 +18,7 @@ kbdi = 0.0
 
 precip_acc = daily_precip(0, :, :)
 precip_acc = 0.0
-Q = kbdi(0, :, :)
+Q = kbdi(0, :, :)	;serves as temporary kbdi variable in loop
 Q = 100.0	;initial KBDI value, taken from Larry's code. Different sources have different starting points.
 
 ndays = dimsizes(daily_precip(:,0,0))
@@ -32,7 +30,8 @@ do i=0, ndays-1
 	precip_adj = precip_d
 	precip_adj = 0.         ;adjusted accumulated precipitation to account for evapotranspiration
 	; assume the day before the beginning of the run did not have any precipitation
-
+	
+	;precip_acc is accumulated precipitation
 	precip_acc = where(precip_d .le. 0.0, 0.0, precip_acc + precip_d)       ; if no precip falls, reset precip_acc to 0
 	precip_adj = (precip_acc - 0.2) > 0	; adjust rainfall to account for 0.2 inches of evapotranspiration. drought index is reduced 1 pt for every 0.01 inches of adjusted rainfall
 	precip_acc = precip_acc < 8.0         ; soil is saturated at 8 inches of precip_acc
