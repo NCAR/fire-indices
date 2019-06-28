@@ -33,7 +33,7 @@ do i=0, ndays-1
 	precip_adj = 0.         ;adjusted accumulated precipitation to account for evapotranspiration
 	; assume the day before the beginning of the run did not have any precipitation
 
-	precip_acc = where(precip_d .eq. 0.0, 0.0, precip_acc + precip_d)       ; if no precip falls, reset precip_acc to 0
+	precip_acc = where(precip_d .le. 0.0, 0.0, precip_acc + precip_d)       ; if no precip falls, reset precip_acc to 0
 	precip_adj = (precip_acc - 0.2) > 0	; adjust rainfall to account for 0.2 inches of evapotranspiration. drought index is reduced 1 pt for every 0.01 inches of adjusted rainfall
 	precip_acc = precip_acc < 8.0         ; soil is saturated at 8 inches of precip_acc
 
