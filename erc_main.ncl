@@ -74,7 +74,7 @@ r_tmax = addfile(tmaxfile, "r")
 r_tmin = addfile(tminfile, "r")
 r_fm1000 = addfile(fm1000file, "r")
 r_fm100 = addfile(fm100file, "r")
-r_huss = addfile(spchum_in, "r")
+r_huss = addfile(hussfile, "r")
 ;r_z3 = addfile(z3_in, "r")
 r_z3 = addfile("pdur_jolly_regrid.nc", "r")
 r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
@@ -112,7 +112,7 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_erc@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts erc_main.ncl, calc_julian_day.ncl, calc_vpd.ncl, calc_gsi.ncl, normalize.ncl, find_first.ncl, adjust.ncl, calc_potential_solar.ncl, calc_sow_daily.ncl, calc_pduration.ncl, calc_point_pduration.ncl, calc_paper_pduration.ncl, calc_emc.ncl, calc_x1000.ncl, calc_mcherb.ncl, calc_mcwood.ncl, calc_vegstage.ncl, and calc_erc.ncl, from source file "+precfile+ ", "+rsdsfile+ ", "+rhmaxfile+ ", "+rhminfile+ ", "+tmaxfile+ ", "+tminfile+ ", "+fm1000file+ ", "+fm100file+", "+z3_in+", "+spchum_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts erc_main.ncl, calc_julian_day.ncl, calc_vpd.ncl, calc_gsi.ncl, normalize.ncl, find_first.ncl, adjust.ncl, calc_potential_solar.ncl, calc_sow_daily.ncl, calc_pduration.ncl, calc_point_pduration.ncl, calc_paper_pduration.ncl, calc_emc.ncl, calc_x1000.ncl, calc_mcherb.ncl, calc_mcwood.ncl, calc_vegstage.ncl, and calc_erc.ncl, from source file "+precfile+ ", "+rsdsfile+ ", "+rhmaxfile+ ", "+rhminfile+ ", "+tmaxfile+ ", "+tminfile+ ", "+fm1000file+ ", "+fm100file+", "+z3_in+", "+hussfile
 w_erc@history = history
 
 ; copy variables
