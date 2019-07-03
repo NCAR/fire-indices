@@ -15,8 +15,8 @@ load "calc_cfwi.ncl"
 load "check_time.ncl"
 load "clip_time.ncl"
 
-load "crop.ncl"		;for use when paths are not set up correctly (the quick and dirty fix)
-;load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/crop.ncl"	;for use in any other situation, aka the proper way
+;load "crop.ncl"		;for use when paths are not set up correctly (the quick and dirty fix)
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/crop.ncl"	;for use in any other situation, aka the proper way
 
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -35,7 +35,7 @@ r_humid = addfile(hursfile, "r")
 r_wdsp = addfile(spdfile, "r")
 r_temp = addfile(tmaxfile, "r")
 
-timeW = r_wind->time
+timeW = r_wdsp->time
 timeT = r_temp->time
 timeH = r_humid->time
 timeP = r_prec->time
@@ -80,73 +80,21 @@ end do
 
 pr = r_prec->prec
 convert_prec("mm/day", pr)
-;humid = r_humid->hurs
-rhmax = r_rhmax->rhmax
-rhmin = r_rhmin->rhmin
-humid = (rhmin + rhmax) / 2
-humid@units = rhmax@units
+humid = r_humid->hurs
+;rhmax = r_rhmax->rhmax
+;rhmin = r_rhmin->rhmin
+;humid = (rhmin + rhmax) / 2
+;humid@units = rhmax@units
 convert_humid("%", humid)
 windsp = r_wdsp->spd
 temp = r_temp->tmax		;technically supposed to be noon temp, but max temperature is the closest
 convert_temp( "degC", temp)	; convert anything into Celsius if not already
 time = r_prec->time
 
-ffmc = pr(0, :, :)		;set up correctly sized arrays with latitude, longitude attached
-dmc = pr(0, :, :)
-dc = pr(0, :, :)
-ffmc = 85.0
-dmc = 6.0
-dc = 15.0
-
-Lf = (/-1.6, -1.6, -1.6, .9, 3.8, 5.8, 5.8, 6.4, 5.0, 2.4, .4, -1.6, -1.6/)	;"Day length factors" for deeper in the soil... according to month, Jan-Dec
-
 lat = r_prec->lat
 lon = r_prec->lon
 
-cfwi = pr
-cfwi = 0.0
-
-ndays = dimsizes(time)-1
-opt = 0		; for cd_calendar, option 5 returns an array: year (cal(0)), month (cal(1)), day (cal(2)), hour, minute, second
-
-latlen = dimsizes(lat)
-lonlen = dimsizes(lon)
-
-delete_VarAtts(cfwi, -1)
-cfwi@longname = "Canadian Fire Weather Index"
-varatts = (/"units", "missing_value", "_FillValue"/)
-cfwi@$varatts(0)$ = "1"		; cfwi is unitless
-
-do i = 1, dimsizes(varatts)-1
-	cfwi@$varatts(i)$ = pr@$varatts(i)$
-end do
-
-ffmc_temp = ffmc
-m = pr(0,:,:)
-m = 0.0
-
-;loop runs over one time step, all of space
-do i = 0, ndays
-	cal = cd_calendar(time(i), opt)
-	cal1 = tointeger(cal(0,:))
-	cal1@calendar = time@calendar
-	day_year = day_of_year(cal1(0), cal1(1), cal1(2))
-	Le = daylight_fao56(day_year, lat)
-	Le1 = Le(0, :)
-	Le2 = conform_dims((/latlen, lonlen/), Le1, 0)
-	tempdmc = temp(i, :, :)
-	tempdmc = tempdmc > -1.1	;multiple adjustments made to temp according to which index is being calculated. tempdmc and tempdc are separate
-	tempdc = temp(i, :, :)
-	tempdc = tempdc > -2.8 
-
-	m = (/calc_ffmc(ffmc_temp, humid(i, :, :), temp(i, :, :), windsp(i, :, :), pr(i, :, :))/)	;ffmc is calculated and passed by reference
-	ffmc = ffmc_temp
-	dmc = (/calc_dmc(dmc, tempdmc, pr(i, :, :), humid(i, :, :), Le2)/)
-	dc = (/calc_dc(pr(i, :, :), tempdc, dc, Lf(cal1(1)-1))/)
-	isi = (/calc_isi(windsp(i, :, :), m)/)
-	bui = (/calc_bui(dmc, dc)/)
-	cfwi(i, :, :) = (/calc_cfwi(bui, isi)/)
-end do
+cfwi = calc_cfwi(time, temp, humid, windsp, pr, lat, lon)
 
 w_cfwi->cfwi = cfwi
 

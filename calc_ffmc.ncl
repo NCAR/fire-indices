@@ -33,8 +33,6 @@ m = where(mo .lt. Ew, Ew - (Ew - mo) * 10^(-kdw), m)
 m = m < 250.0
 m = m > 0.0
 
-Fo = 59.5 * (250. - m) / (147.2 + m)	;(Final ffmc calculation)
-
 return(m)
 
 end

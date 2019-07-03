@@ -3,20 +3,73 @@
 ;/
 
 
-;R is ISI
-;U is BUI
-
-function calc_cfwi(U, R)
-local fd, B, S
+function calc_cfwi(time, tmax, hurs, spd, prec, lat, lon)
+local fd, B, cfwi, ffmc, dmc, dc, Lf, latlen, lonlen, ndays, cal, cal1, day_year, Le, Le1, Le2, tmaxdmc, tmaxdc, m, ffmc, dmc, dc, isi, bui, fd, B, varatts
 begin
 
-fd = where(U .gt. 80., 1000. / (25. + 108.64 * exp(-0.023 * U)), 0.626 * U^0.809 + 2)
-B = 0.1 * R * fd
-S = where(B .gt. 1., exp(2.72 * (.434 * log(B))^.647), B)
+ffmc = prec(0, :, :)
+dmc = prec(0, :, :)
+dc = prec(0, :, :)
+m = prec(0, :, :)
+ffmc = 85.0
+dmc = 6.0
+dc = 15.0
+m = 0.0
 
-S = S > 0.0
+Lf = (/-1.6, -1.6, -1.6, .9, 3.8, 5.8, 5.8, 6.4, 5.0, 2.4, .4, -1.6, -1.6/)     ;"Day length factors" for deeper in the soil... according to month, Jan-Dec
 
-return(S)
+cfwi = prec
+cfwi = 0.0
+
+
+latlen = dimsizes(lat)
+lonlen = dimsizes(lon)
+
+
+ndays = dimsizes(time)
+
+do i = 0, ndays-1
+;do i = 0, 20
+
+        cal = cd_calendar(time(i), 0)
+        cal1 = tointeger(cal(0,:))
+        cal1@calendar = time@calendar
+        day_year = day_of_year(cal1(0), cal1(1), cal1(2))
+        Le = daylight_fao56(day_year, lat)
+        Le1 = Le(0, :)
+        Le2 = conform_dims((/latlen, lonlen/), Le1, 0)
+	
+	tmaxdmc = tmax(i, :, :)
+	tmaxdmc = tmaxdmc > -1.1
+	
+	tmaxdc = tmax(i, :, :)
+	tmaxdc = tmaxdc > -2.8
+
+	m = (/ calc_ffmc(ffmc, hurs(i, :, :), tmax(i, :, :), spd(i, :, :), prec(i, :, :) ) /)	
+	ffmc = 59.5 * (250. - m) / (147.2 + m)
+	dmc = (/ calc_dmc(dmc, tmaxdmc, prec(i, :, :), hurs(i, :, :), Le2) /)
+	dc = (/ calc_dc(prec(i, :, :), tmaxdc, dc, Lf(cal1(1)-1)) /)
+	isi = (/ calc_isi(spd(i, :, :), m) /)
+	bui = (/ calc_bui(dmc, dc) /)
+
+	fd = where(bui .gt. 80., 1000. / (25. + 108.64 * exp(-0.023 * bui)), 0.626 * bui^0.809 + 2)
+	B = 0.1 * isi * fd
+	cfwi(i, :, :) = where(B .gt. 1., exp(2.72 * (.434 * log(B))^.647), B)
+
+	cfwi(i, :, :) = cfwi(i, :, :) > 0.0
+
+end do
+
+delete_VarAtts(cfwi, -1)
+cfwi@longname = "Canadian Fire Weather Index"
+varatts = (/"units", "missing_value", "_FillValue"/)
+cfwi@$varatts(0)$ = "1"         ; cfwi is unitless
+
+do i = 1, dimsizes(varatts)-1
+        cfwi@$varatts(i)$ = prec@$varatts(i)$
+end do
+
+return(cfwi)
 
 end
 
