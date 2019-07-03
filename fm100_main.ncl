@@ -131,47 +131,7 @@ lon = r_tempmax->lon
 
 b = r_z3->Z3
 
-climcl = 3.
-fm100 = maxtemp         ;just to establish lat, lon etc
-fm100 = -1.             ;to ensure that any values not calculated are obviously wrong
-;yfm = 5. + 5. * climcl ;different initial value, the one used in the paper
-yfm = maxtemp(0, :, :)  ;establish lat, lon for yfm (only holds one time step)
-yfm = 10.0
-
-emcmax = calc_emc(mintemp, maxhum)
-emcmin = calc_emc(maxtemp, minhum)
-day_year = calc_julian_day(time)        ;creates a vector of day of year that is as long as the model run
-latlen = dimsizes(lat)
-lonlen = dimsizes(lon)
-pptdur = calc_pduration(b, pr, latlen, lonlen)
-
-
-fr100 = 1.0 - 0.87 * exp(-0.24)         ; precalculating a constant
-
-emcbar = emcmin(0, :, :)
-
-ndays = dimsizes(time) - 1
-do i = 0, ndays
-        lonlen = dimsizes(lon)
-        daylit = dble2flt(calc_daylight_manual(day_year(i), lat, lonlen))
-;       daylit = dlbe2flt(calc_Daylight_builtin(day_year(i), lat, lonlen))
-        emcbar = (daylit(0, :, :) * emcmin(i, :, :) + (24.0 - daylit(0, :, :)) * emcmax(i, :, :)) / 24.
-        temp = calc_fm100(emcbar, pptdur(i, :, :), yfm, fr100)
-        fm100(i, :, :) = (/temp/)
-        yfm = (/fm100(i, :, :)/)
-end do
-
-delete_VarAtts(fm100, -1) ;get rid of superfluous attributes
-
-fm100@long_name = "Percent Moisture Content for 100-hr timelag"   ; No convention for long names, just make it descriptive
-
-varatts = (/"units", "missing_value", "_FillValue"/)
-
-fm100@$varatts(0)$ = "%"
-
-do i = 1, dimsizes(varatts)-1     ; transfer "missing value" and "_FillValue" from precip data
-   fm100@$varatts(i)$ = r_pr->prec@$varatts(i)$
-end do
+fm100 = calc_fm100(time, pr, maxtemp, mintemp, maxhum, minhum, lat, lon, b)
 
 w_fm100->fm100 = fm100	;write fm100 data to file
 
