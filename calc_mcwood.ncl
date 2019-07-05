@@ -13,22 +13,22 @@ function calc_mcwood(pregrn, mcwodi, mc1000, climat, hveg, gren, ymwood)
 local mcwood, woodgas, woodga, woodgb
 begin
 
-; shrubs over entire range of fmwood
-woodgas = (/12.5,-5.0,-22.5,-45.0/)      ; wooda in MATLAB code
-woodgbs = (/7.5,8.2,8.9,9.8/)            ; woodb in MATLAB code
+	; shrubs over entire range of fmwood
+	woodgas = (/12.5,-5.0,-22.5,-45.0/)      ; wooda in MATLAB code
+	woodgbs = (/7.5,8.2,8.9,9.8/)            ; woodb in MATLAB code
 
-; pre-season and post-freeze values for fmwood
+	; pre-season and post-freeze values for fmwood
 
-woodga = woodgas(climat - 1)
-woodgb = woodgbs(climat - 1)
-mcwodi = where(ymwood .gt. pregrn, ymwood, mcwodi)
-mcwodp = woodga + woodgb * mc1000
-mcwood = mcwodp < 200           ; true during green stage. This corresponds to the hveg values green, transition, and cured
-mcwood = mcwood > pregrn
-mcwood = where(hveg .eq. "pregreen" .or. hveg .eq. "frozen", pregrn, mcwood)
-mcwood = where(hveg .eq. "greenup", mcwodi + (mcwodp - mcwodi) * gren / 100., mcwood)   ;mcwodi = pregrn
+	woodga = woodgas(climat - 1)
+	woodgb = woodgbs(climat - 1)
+	mcwodi = where(ymwood .gt. pregrn, ymwood, mcwodi)
+	mcwodp = woodga + woodgb * mc1000
+	mcwood = mcwodp < 200           ; true during green stage. This corresponds to the hveg values green, transition, and cured
+	mcwood = mcwood > pregrn
+	mcwood = where(hveg .eq. "pregreen" .or. hveg .eq. "frozen", pregrn, mcwood)
+	mcwood = where(hveg .eq. "greenup", mcwodi + (mcwodp - mcwodi) * gren / 100., mcwood)   ;mcwodi = pregrn
 
-return(mcwood > pregrn)
+	return(mcwood > pregrn)
 
 end
 

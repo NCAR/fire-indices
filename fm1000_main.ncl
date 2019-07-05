@@ -11,13 +11,6 @@
 
 ; Calculate fm1000. Independent fire index, also used as an input in ERC
 
-load "calc_emc.ncl"
-load "calc_julian_day.ncl"
-load "calc_daylight_builtin.ncl"
-load "calc_daylight_manual.ncl"
-load "calc_pduration.ncl"
-load "calc_point_pduration.ncl"
-load "calc_paper_pduration.ncl"
 load "convert_temp.ncl"
 load "convert_prec.ncl"
 load "convert_humid.ncl"
@@ -37,10 +30,6 @@ rhminfile
 z3_in
 output
 
-precip should be in mm
-temperature should be in Celsius
-humidity should be on a 0 to 100 scale
-Alternatively, discard conversions in script and read in precip in inches, temperature in Fahrenheit
 ;/
 
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

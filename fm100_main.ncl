@@ -9,13 +9,6 @@
   end setvalues
 
 
-load "calc_emc.ncl"
-load "calc_julian_day.ncl"
-load "calc_daylight_builtin.ncl"
-load "calc_daylight_manual.ncl"
-load "calc_pduration.ncl"
-load "calc_point_pduration.ncl"
-load "calc_paper_pduration.ncl"
 load "calc_fm100.ncl"
 load "convert_temp.ncl"
 load "convert_prec.ncl"
@@ -37,10 +30,6 @@ rhminfile
 z3_in
 output (the file to be written to)
 
-precip should be in mm
-temperature should be in Celsius
-humidity should be on a 0 to 100 scale
-Alternatively, remove all conversions and read in precip in inches and temperature in Fahrenheit
 ;/
 
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -17,20 +17,20 @@ function calc_vegstage(colddays, maxt, mint, j_date, j_green, gren, mcherb, hveg
 local vegstage, prgrn_check
 begin
 
-if(j_date .eq. 1) then
-        vegstage1 = "pregreen"
-else
-        vegstage1 = hveg
-end if
+	if(j_date .eq. 1) then
+	        vegstage1 = "pregreen"
+	else
+	        vegstage1 = hveg
+	end if
 
-vegstage = where(hveg .eq. "pregreen" .and. j_date .ge. j_green, "greenup", hveg)
-vegstage = where(hveg .eq. "greenup" .and. gren .ge. 100. .and. mcherb .ge. 120., "green", vegstage)
-vegstage = where(hveg .eq. "greenup" .and. gren .ge. 100. .and. mcherb .lt. 120., "transition", vegstage)
-vegstage = where(hveg .eq. "green" .and. mcherb .lt. 120, "transition", vegstage)
-vegstage = where(hveg .eq. "transition" .and. mcherb .le. 30., "cured", vegstage)
-vegstage = where(hveg .eq. "cured" .and. colddays .ge. 3, "frozen", vegstage)
+	vegstage = where(hveg .eq. "pregreen" .and. j_date .ge. j_green, "greenup", hveg)
+	vegstage = where(hveg .eq. "greenup" .and. gren .ge. 100. .and. mcherb .ge. 120., "green", vegstage)
+	vegstage = where(hveg .eq. "greenup" .and. gren .ge. 100. .and. mcherb .lt. 120., "transition", vegstage)
+	vegstage = where(hveg .eq. "green" .and. mcherb .lt. 120, "transition", vegstage)
+	vegstage = where(hveg .eq. "transition" .and. mcherb .le. 30., "cured", vegstage)
+	vegstage = where(hveg .eq. "cured" .and. colddays .ge. 3, "frozen", vegstage)
 
-return(vegstage)
+	return(vegstage)
 
 end
 

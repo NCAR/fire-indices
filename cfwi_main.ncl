@@ -15,16 +15,13 @@ load "calc_cfwi.ncl"
 load "check_time.ncl"
 load "clip_time.ncl"
 
-;load "crop.ncl"		;for use when paths are not set up correctly (the quick and dirty fix)
-load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/crop.ncl"	;for use in any other situation, aka the proper way
-
 ;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 ; main body of code (finally)
-; command line inputs are: precfile = daily precipitation in mm
+; command line inputs are: precfile = daily precipitation
 ;			hursfile = daily relative humidity
 ;			spdfile = wind speed in m/s
-;			tmaxfile = daily maximum temperature in Celsius
+;			tmaxfile = daily maximum temperature
 
 begin
 

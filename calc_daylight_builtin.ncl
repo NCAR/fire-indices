@@ -17,13 +17,13 @@ function calc_daylight_builtin(day, lat, lonlen)
 local latlen, daylight, daylight1, daylit, day
 begin
 
-latlen = dimsizes(lat)
+	latlen = dimsizes(lat)
 
-daylight = daylight_fao56(day, lat)
-;daylight1 = daylight(0, :)
-daylit = conform_dims((/latlen, lonlen/), daylight, 0)
+	daylight = daylight_fao56(day, lat)
+	;daylight1 = daylight(0, :)
+	daylit = conform_dims((/latlen, lonlen/), daylight, 0)
 
-return(daylit)
+	return(daylit)
 
 end
 
