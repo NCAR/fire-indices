@@ -2,7 +2,7 @@
 2018, Copyright University Corporation for Atmospheric Research
 ;/
 
-/;
+
 load "calc_julian_day.ncl"
 load "calc_vpd.ncl"
 load "calc_gsi.ncl"
@@ -20,7 +20,7 @@ load "calc_mcherb.ncl"
 load "calc_mcwood.ncl"
 load "calc_vegstage.ncl"
 load "calc_just_erc.ncl"
-;/
+
 
 /;
  w1d,w10d,w100d,w1000d,wherb,wwood,depth,sg1d,sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd are read in according to the fuel model
