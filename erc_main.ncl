@@ -19,6 +19,7 @@ load "calc_x1000.ncl"
 load "calc_mcherb.ncl"
 load "calc_mcwood.ncl"
 load "calc_vegstage.ncl"
+load "calc_just_erc.ncl"
 load "calc_erc.ncl"
 load "convert_temp.ncl"
 load "convert_prec.ncl"
@@ -32,6 +33,7 @@ The following variables should be specified as command-line arguments
 
 precfile
 rsdsfile
+hussfile
 rhmaxfile
 rhminfile
 tmaxfile
@@ -51,6 +53,7 @@ z3_in   ; this is a coefficient for converting precipitation amount to precipita
 /;
 precipitation (in mm)
 solar radiation (Downwelling shortwave radiation, in W m-2)
+specific humidity (kg/kg)
 maximum and minimum relative humidity (on a 0 to 100 scale)
 maximum and minimum temperature (in Celsius)
 optionally, altitude	(default is 500 m)
@@ -112,7 +115,7 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_erc@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts erc_main.ncl, calc_julian_day.ncl, calc_vpd.ncl, calc_gsi.ncl, normalize.ncl, find_first.ncl, adjust.ncl, calc_potential_solar.ncl, calc_sow_daily.ncl, calc_pduration.ncl, calc_point_pduration.ncl, calc_paper_pduration.ncl, calc_emc.ncl, calc_x1000.ncl, calc_mcherb.ncl, calc_mcwood.ncl, calc_vegstage.ncl, and calc_erc.ncl, from source file "+precfile+ ", "+rsdsfile+ ", "+rhmaxfile+ ", "+rhminfile+ ", "+tmaxfile+ ", "+tminfile+ ", "+fm1000file+ ", "+fm100file+", "+z3_in+", "+hussfile
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts erc_main.ncl, calc_julian_day.ncl, calc_vpd.ncl, calc_gsi.ncl, normalize.ncl, find_first.ncl, adjust.ncl, calc_potential_solar.ncl, calc_sow_daily.ncl, calc_pduration.ncl, calc_point_pduration.ncl, calc_paper_pduration.ncl, calc_emc.ncl, calc_x1000.ncl, calc_mcherb.ncl, calc_mcwood.ncl, calc_vegstage.ncl, and calc_erc.ncl, from source file "+precfile+ ", "+rsdsfile+ ", "+rhmaxfile+ ", "+rhminfile+ ", "+tmaxfile+ ", "+tminfile+ ", "+fm1000file+ ", "+fm100file+", "+"pdur_jolly_regrid.nc"+", "+hussfile
 w_erc@history = history
 
 ; copy variables
@@ -153,6 +156,11 @@ huss = r_huss->huss
 b = r_z3->Z3
 ;elev = r_elev->orog
 elev = 500.
+
+erc = calc_erc(time, prec, maxtC, mintC, maxrh, minrh, lat, lon, rad, huss, b, fm100, fm1000)
+
+/;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 latlen = dimsizes(lat)
 lonlen = dimsizes(lon)
@@ -270,6 +278,10 @@ erc@$varatts(0)$ = "1"
 do i = 1, dimsizes(varatts)-1     ; transfer "missing value" and "_FillValue" from precip data
    erc@$varatts(i)$ = r_pr->prec@$varatts(i)$
 end do
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;/
+
 
 w_erc->erc = erc	;transfer erc data into file
 

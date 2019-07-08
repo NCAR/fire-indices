@@ -3,135 +3,165 @@
 ;/
 
 /;
+load "calc_julian_day.ncl"
+load "calc_vpd.ncl"
+load "calc_gsi.ncl"
+load "normalize.ncl"
+load "find_first.ncl"
+load "adjust.ncl"
+load "calc_potential_solar.ncl"
+load "calc_sow_daily.ncl"
+load "calc_pduration.ncl"
+load "calc_point_pduration.ncl"
+load "calc_paper_pduration.ncl"
+load "calc_emc.ncl"
+load "calc_x1000.ncl"
+load "calc_mcherb.ncl"
+load "calc_mcwood.ncl"
+load "calc_vegstage.ncl"
+load "calc_just_erc.ncl"
+;/
+
+/;
  w1d,w10d,w100d,w1000d,wherb,wwood,depth,sg1d,sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd are read in according to the fuel model
  fm1, fm10, fm100, fm1000 are the same as mc1, mc10, mc100, mc1000, the percent moisture content of 1-, 10-, 100-, 1000-hour timelag
  erc is energy release component
 ;/
-function calc_erc(w1d,w10d,w100d,w1000d,wherb,wwood,mcherb,depth,sg1d,sg10d,sg100d,sg1000d,sgherb,sgwood,fm1,fm10,fm100,fm1000,fmwood,extmoi,hd)
-local stdl, rhodl, sdl, etasdl, fctcur, wherbc, w1dp, wherbp, wtotd, wtotl, wtot, w1n, w10n, wherbn, wwoodn, wtotln, rhobed, rhobar, betbar, hnu1, hnu10, hnu100, hnherb, hnwood, wrat, fmff, extliv, sa1, sa10, sa100, sherbc, sawood, sadead, salive, fct1, fct10, fct100, fcherb, fcwood, fcded, fcliv, sgbrd, sgbrl, sgbrt, fct1e, fct10e, fct100e, fct1000e, fwoode, fhrbce, fcdede, fclice, wdedne, wlivne, sgbrde, sgbrle, sgbrte, betope, gmamxe, ade, gmapme, wftmde, wtfmle, dedrte, livrte, etamde, etamle, ire, tau, erc
+
+function calc_erc(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, rsds, huss, b, fm100, fm1000)
+;local stdl, rhodl, sdl, etasdl, fctcur, wherbc, w1dp, wherbp, wtotd, wtotl, wtot, w1n, w10n, wherbn, wwoodn, wtotln, rhobed, rhobar, betbar, hnu1, hnu10, hnu100, hnherb, hnwood, wrat, fmff, extliv, sa1, sa10, sa100, sherbc, sawood, sadead, salive, fct1, fct10, fct100, fcherb, fcwood, fcded, fcliv, sgbrd, sgbrl, sgbrt, fct1e, fct10e, fct100e, fct1000e, fwoode, fhrbce, fcdede, fclice, wdedne, wlivne, sgbrde, sgbrle, sgbrte, betope, gmamxe, ade, gmapme, wftmde, wtfmle, dedrte, livrte, etamde, etamle, ire, tau, erc
+local r_const, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
 
 begin
 
-stdl = 0.0555   ; used in place of std and stl, since both have the same value
-rhodl = 32.     ; used in place of rhod and rhol, since both have the same value
-sdl = 0.01      ; sd and sl
-etasdl = 0.174 * sdl^(-.19)
+	r_const = addfile("erc_constants.nc", "r")
+	elev = 500.
 
-fctcur = 1.33 - 0.0111 * mcherb
-fctcur = fctcur > 0.
-fctcur = fctcur < 1.
-wherbc = fctcur * wherb         ;wherbc is never initialized as this in the MATLAB code, but is a useful intermediary variable
-w1dp = w1d + wherbc
-wherbp = wherb - wherbc         ;wherbp here is wherbc in MATLAB code
-wtotd = w1dp + w10d + w100d + w1000d
-wtotl = wwood + wherbp
-wtot = wtotd + wtotl
+	latlen = dimsizes(lat)
+	lonlen = dimsizes(lon)
+	timelen = dimsizes(time)	
 
-;compute net fuel loading
-w1n = w1dp * (1. - stdl)
-w10n = w10d * (1. - stdl)
-w100n = w100d - (1. - stdl)
-wherbn = wherbp * (1. - stdl)   ;wherbn is from paper. In MATLAB code this is the variable whernc
-wwoodn = wwood * (1. - stdl)
-wtotln = wtotl * (1. - stdl)
+	day_year = calc_julian_day(time)
+	tempsolar = calc_potential_solar(lat,day_year, elev)
+	maxsolar = conform_dims((/timelen, latlen, lonlen/), tempsolar, (/0,1/))
+	sow = calc_sow_daily(rsds, prec, maxsolar)
 
-rhobed = (wtot - w1000d) / depth        ;bulk density of fuel bed
-rhobar = ((wtotl * rhodl) + (wtotd * rhodl)) / wtot     ; particle density of weighted fuel
-betbar = rhobed / rhobar        ; packing ratio
+	annperen = "annual"     ; in MATLAB code, 1 == annual, 2 == perennial
+	climat = 3      ;climat is NFDRS Climate class
+	pptdur = calc_pduration(b, prec, latlen, lonlen)        ; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
 
-;if wtotln .gt. 0
-;heating numbers
-hnu1 = w1n * exp(-138. / sg1d)
-hnu10 = w10n * exp( -138. / sg10d)
-hnu100 = w100n * exp( -138. / sg100d)
+	;READ IN ALL THE CONSTANTS. For right now, always use fuel model G to match other literature
+	fuel_mod = 6    ;0=A, 1=B, 2=C, 3=D, 4=E, 5=F, 6=G, 7=H, 8=I, 9=J etc
+	w1d = r_const->w1(fuel_mod)
+	w10d = r_const->w10(fuel_mod)
+	w100d = r_const->w100(fuel_mod)
+	w1000d = r_const->w1000(fuel_mod)
+	wherb = r_const->whrb(fuel_mod)
+	wwood = r_const->wwd(fuel_mod)
+	depth = r_const->dp(fuel_mod)
+	sg1d = r_const->s1(fuel_mod)
+	sg10d = r_const->s10(fuel_mod)
+	sg100d = r_const->s100(fuel_mod)
+	sg1000d = r_const->s1000(fuel_mod)
+	sgherb = r_const->shrb(fuel_mod)
+	sgwood = r_const->swd(fuel_mod)
+	extmoi = r_const->emo(fuel_mod)
+	hd = r_const->hd(fuel_mod)
 
-;hnherb = where((-500. / sgherb) .lt. -180.218, 0., wherbn * exp(-500. / sgherb))
-if((-500. / sgherb) .lt. -180.218) then
-        hnherb = conform_dims(dimsizes(wherbn), 0., -1)
-else
-        hnherb = wherbn * exp(-500. / sgherb)
-end if
+	c1 = 0.046
 
-hnwood = where((-500. / sgwood) .lt. -180.218, 0., wwoodn * exp(-500. / sgwood))
-wrat = where((hnherb + hnwood) .eq. 0., 0., (hnu1 + hnu10 + hnu100) / (hnherb + hnwood))
-fmff = ((fm1 * hnu1) + (fm10 * hnu10) + (fm100 * hnu100)) / (hnu1 + hnu10 + hnu100)     ; fine dead fuel moisture content
-extliv = where(wtotln .gt. 0, ((2.9 * wrat * (1 - fmff / extmoi) - 0.226) * 100) > extmoi, 0.)  ; moisture of extinction of the dead fuels from the fuel model
+	w1d = w1d * c1
+	w10d = w10d * c1
+	w100d = w100d * c1
+	w1000d = w1000d * c1
+	wherb = wherb * c1
+	wwood = wwood * c1              ; conversions from T/Ac to lbs/ft^2
 
-;weighting factors for rate-of-spread by surface area
-sa1 = (w1dp / rhodl) * sg1d
-sa10 = (w10d / rhodl) * sg10d
-sa100 = (w100d / rhodl) * sg100d
-sherbc = (wherbp / rhodl) * sgherb
-sawood = (wwood / rhodl) * sgwood
+	hveg = conform_dims((/latlen, lonlen/), "pregreen", -1)                ; pregreen, greenup, green, transition, cured, frozen
+	greendays = prec(0, :, :)
+	greendays = 0.
+	colddays = prec(0, :, :)
+	colddays = 0.
+	;warmdays = prec(0, :, :)
+	;warmdays = 0.
+	;gdd = prec(0, :, :)
+	;gdd = 0.
+	ymherb = prec(0, :, :)
+	ymherb = 50.
+	ymwood = ymherb
 
-; total surface area of dead and live fuel categories by surface area
-sadead = sa1 + sa10 + sa100
-salive = sawood + sherbc
+	rh1 = rhmin + 2.
 
-; weighting factors for dead and live fuel classes by surface area
-fct1 = sa1 / sadead
-fct10 = sa10 / sadead
-fct100 = sa100 / sadead
+	vpd = calc_vpd(tmax, tmin, huss, rh1, elev)           ;the vpd function requires Celsius
+	
+	maxt = tmax * 1.8 + 32.	;convert Celsius to Fahrenheit for rest of calculations
+	mint = tmin * 1.8 + 32.
 
-fcherb = where(wtotl .gt. 0., sherbc / salive, 0.)
-fcwood = where(wtotl .gt. 0., sawood / salive, 0.)
+	gsi = calc_gsi(mint, lat, vpd, day_year, lonlen)
+	gsi_norm = normalize(gsi)
 
-;weighting factors for dead, live fuel categories
-fcded = sadead / (sadead + salive)
-fcliv = salive / (sadead + salive)
+	temp1 = maxt - 2.
 
-; weighted surface area to volume ratios of dead and live fuel categories
-sgbrd = fct1 * sg1d + fct10 * sg10d + fct100 *sg100d
-sgbrl = fcwood * sgwood + fcherb * sgherb
+	greenup = find_first(gsi_norm, day_year, latlen, lonlen)
 
-;characteristic surface area to volume ratio
-sgbrt = sgbrd * fcded + sgbrl * fcliv
+	yx1000 = fm1000(0, :, :)
+	ym1000 = fm1000(0, :, :)
 
-;weighting factors for dead and live fuel classes by load
-fct1e = w1dp / wtotd
-fct10e = w10d / wtotd
-fct100e = w100d / wtotd
-fct1000e = w1000d / wtotd
+	pregrns = (/50.0,60.0,70.0,80.0/)
+	pregrn = pregrns(climat -1)
 
-fwoode = where(wtotl .gt. 0, wwood / wtotl, 0)
-fhrbce = where(wtotl .gt. 0, wherbp / wtotl, 0)
+	tmpprm = temp1
+	rhprm = rh1
+	adjust(tmpprm, rhprm, sow)      ;this is adjusted temperature and humidity at the fuel-atmosphere interface, as opposed to what is measured at a weather station
+	emcprm = calc_emc(tmpprm, rhprm)        ;emcprm is equilibrium moisture content at the fuel-atm interface
 
-;weighting factors for dead and live fuel categories by load
-fcdede = wtotd / wtot
-fclive = wtotl / wtot
-wdedne = wtotd * (1 - stdl)
-wlivne = wtotl * (1 - stdl)
+	fm1 = where(sow .gt. 4, 35.0, 1.03 * emcprm)
+	fm10 = where(sow .gt. 4, 35., 1.28 * emcprm)
 
-sgbrde = (fct1e * sg1d) + (fct10e * sg10d) + (fct100e * sg100d) + (fct1000e * sg1000d)
-sgbrle = (fwoode * sgwood) + (fhrbce * sgherb)
-sgbrte = sgbrde * fcdede + sgbrle * fclive
-betope = 3.348 * (sgbrte^(-0.8189))
+	mcwodi = ymherb
+	mcwodi = (/pregrn/)
+	mcherbi = fm1
 
-gmamxe = (sgbrte^1.5) / (495 + 0.0594 * (sgbrte^1.5))   ; weighted max reaction velocity of loading
-ade = 133 * (sgbrte^(-0.7913))
-gmapme = gmamxe * ((betbar / betope)^ade) * exp(ade * (1 - (betbar/ betope))) ;weighted optimum reaction velocity of loading (gmaope)
+	erc = prec      ;establishes lat, lon, etc.
+	erc = 0.0
+	ndays = dimsizes(time)
 
-;weighted moisture content of dead, live fuel categories
-wtfmde = fct1e * fm1 + fct10e * fm10 + fct100e * fm100 + fct1000e * fm1000
-wtfmle = fwoode * fmwood + fhrbce * mcherb
+	do i=0, ndays - 1
 
-dedrte = wtfmde / extmoi
-livrte = wtfmle / extliv
+	        year = tointeger(floor(i / 365.2425))
+	        j_green = greenup(year, :, :)
 
-etamde = 1 - 2 * dedrte + 1.5 * (dedrte^2) - 0.5 * (dedrte^3)
-etamde = etamde < 1
-etamde = etamde > 0
+	        x1000 = calc_x1000(fm1000(i, :, :), ym1000, yx1000, maxt(i, :, :), mint(i, :, :), hveg)
 
-etamle = 1 - 2 * livrte + 1.5 * (livrte^2) - 0.5 * (livrte^3)
-etamle = etamle < 1
-etamle = etamle > 0
+	        gren = where(hveg .eq. "greenup", 100. * greendays / (7 * climat), -1.0)
 
-ire = fcdede * wdedne * hd * etasdl * etamde            ;note in MATLAB code there is an hd and hl, but they are equal
-ire = gmapme * (ire + (fclive * wlivne * hd * etasdl * etamle))
-tau = 384. / sgbrt
+	        mcherb  = calc_mcherb(fm1(i, :, :), mcherbi(i, :, :), fm1000(i, :, :), ym1000, greendays, climat, hveg, annperen, x1000, ymherb, gren)
+	        greendays = where(hveg .eq. "greenup", greendays + 1, greendays)
+	        mcwood = calc_mcwood(pregrn, mcwodi, fm1000(i, :, :), climat, hveg, gren, ymwood)
 
-erc = 0.04 * ire * tau
+	        hveg = calc_vegstage(colddays, maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
+	        erc(i, :, :) = (/calc_just_erc(w1d, w10d, w100d, w1000d, wherb, wwood, mcherb, depth, sg1d, sg10d, sg100d, sg1000d, sgherb, sgwood, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, extmoi, hd)/)
 
-return(erc)
+	        colddays = where(hveg .eq. "curing" .and. mint(i, :, :) .lt. 32., colddays + 1, colddays)
+	        colddays = where(hveg .eq. "frozen", 0, colddays)
+	        yx1000 = (/x1000/)
+	        ymherb = (/mcherb/)
+	        ymwood = (/mcwood/)
+
+	end do
+
+	delete_VarAtts(erc, -1) ;get rid of superfluous attributes
+
+	erc@long_name = "Energy Release Component"   ; No convention for long names, just make it descriptive
+
+	varatts = (/"units", "missing_value", "_FillValue"/)
+
+	erc@$varatts(0)$ = "1"
+
+	do i = 1, dimsizes(varatts)-1     ; transfer "missing value" and "_FillValue" from precip data
+	   erc@$varatts(i)$ = prec@$varatts(i)$
+	end do
+
+	return(erc)
 
 end
