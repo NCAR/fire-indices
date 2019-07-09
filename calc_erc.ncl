@@ -36,9 +36,10 @@ load "calc_just_erc.ncl"
         b: array of constants over latitude and longitude, used in the determination of the duration of precipitation
 	fm100: percent moisture content for 100-hr timelag (in percent)
 	fm1000: percent moisture content for 100-hr timelag (in percent)
+	fuel_mod: a letter A-U excluding M which signifies a fuel model as in the NFDRS paper
 ;/
 
-function calc_erc(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, rsds, huss, b, fm100, fm1000)
+function calc_erc(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, rsds, huss, b, fm100, fm1000, fuel_mod)
 local r_const, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
 
 begin
@@ -58,7 +59,7 @@ begin
 	annperen = "annual"     ; in MATLAB code, 1 == annual, 2 == perennial
 	climat = 3      ;climat is NFDRS Climate class
 	pptdur = calc_pduration(b, prec, latlen, lonlen)        ; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
-
+/;
 	;READ IN ALL THE CONSTANTS. For right now, always use fuel model G to match other literature
 	fuel_mod = 6    ;0=A, 1=B, 2=C, 3=D, 4=E, 5=F, 6=G, 7=H, 8=I, 9=J etc
 	w1d = r_const->w1(fuel_mod)
@@ -85,7 +86,7 @@ begin
 	w1000d = w1000d * c1
 	wherb = wherb * c1
 	wwood = wwood * c1              ; conversions from T/Ac to lbs/ft^2
-
+;/
 	hveg = conform_dims((/latlen, lonlen/), "pregreen", -1)                ; pregreen, greenup, green, transition, cured, frozen
 	greendays = prec(0, :, :)
 	greendays = 0.
@@ -149,7 +150,8 @@ begin
 	        mcwood = calc_mcwood(pregrn, mcwodi, fm1000(i, :, :), climat, hveg, gren, ymwood)
 
 	        hveg = calc_vegstage(colddays, maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
-	        erc(i, :, :) = (/calc_just_erc(w1d, w10d, w100d, w1000d, wherb, wwood, mcherb, depth, sg1d, sg10d, sg100d, sg1000d, sgherb, sgwood, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, extmoi, hd)/)
+;	        erc(i, :, :) = (/calc_just_erc(w1d, w10d, w100d, w1000d, wherb, wwood, mcherb, depth, sg1d, sg10d, sg100d, sg1000d, sgherb, sgwood, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, extmoi, hd)/)
+	        erc(i, :, :) = (/calc_just_erc(mcherb, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, fuel_mod)/)
 
 	        colddays = where(hveg .eq. "curing" .and. mint(i, :, :) .lt. 32., colddays + 1, colddays)
 	        colddays = where(hveg .eq. "frozen", 0, colddays)

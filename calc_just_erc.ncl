@@ -7,10 +7,40 @@
  fm1, fm10, fm100, fm1000 are the same as mc1, mc10, mc100, mc1000, the percent moisture content of 1-, 10-, 100-, 1000-hour timelag
  erc is energy release component
 ;/
-function calc_just_erc(w1d,w10d,w100d,w1000d,wherb,wwood,mcherb,depth,sg1d,sg10d,sg100d,sg1000d,sgherb,sgwood,fm1,fm10,fm100,fm1000,fmwood,extmoi,hd)
+
+load "retrieve_constants.ncl"
+
+;function calc_just_erc(w1d,w10d,w100d,w1000d,wherb,wwood,mcherb,depth,sg1d,sg10d,sg100d,sg1000d,sgherb,sgwood,fm1,fm10,fm100,fm1000,fmwood,extmoi,hd)
+function calc_just_erc(mcherb,fm1,fm10,fm100,fm1000,fmwood,fuel_model)
 local stdl, rhodl, sdl, etasdl, fctcur, wherbc, w1dp, wherbp, wtotd, wtotl, wtot, w1n, w10n, wherbn, wwoodn, wtotln, rhobed, rhobar, betbar, hnu1, hnu10, hnu100, hnherb, hnwood, wrat, fmff, extliv, sa1, sa10, sa100, sherbc, sawood, sadead, salive, fct1, fct10, fct100, fcherb, fcwood, fcded, fcliv, sgbrd, sgbrl, sgbrt, fct1e, fct10e, fct100e, fct1000e, fwoode, fhrbce, fcdede, fclice, wdedne, wlivne, sgbrde, sgbrle, sgbrte, betope, gmamxe, ade, gmapme, wftmde, wtfmle, dedrte, livrte, etamde, etamle, ire, tau, erc
 
 begin
+
+constants = retrieve_constants(fuel_model)
+w1d=constants(0)
+w10d=constants(1)
+w100d=constants(2)
+w1000d=constants(3)
+wwood=constants(4)
+wherb=constants(5)
+sg1d=constants(6)
+sg10d=constants(7)
+sg100d=constants(8)
+sg1000d=constants(9)
+sgwood=constants(10)
+sgherb=constants(11)
+hd=constants(12)
+extmoi=constants(14)
+depth=constants(15)
+
+c1 = 0.046
+
+w1d = w1d * c1
+w10d = w10d * c1
+w100d = w100d * c1
+w1000d = w1000d * c1
+wherb = wherb * c1
+wwood = wwood * c1              ; conversions from T/Ac to lbs/ft^2
 
 stdl = 0.0555   ; used in place of std and stl, since both have the same value
 rhodl = 32.     ; used in place of rhod and rhol, since both have the same value
