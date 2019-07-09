@@ -59,34 +59,7 @@ begin
 	annperen = "annual"     ; in MATLAB code, 1 == annual, 2 == perennial
 	climat = 3      ;climat is NFDRS Climate class
 	pptdur = calc_pduration(b, prec, latlen, lonlen)        ; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
-/;
-	;READ IN ALL THE CONSTANTS. For right now, always use fuel model G to match other literature
-	fuel_mod = 6    ;0=A, 1=B, 2=C, 3=D, 4=E, 5=F, 6=G, 7=H, 8=I, 9=J etc
-	w1d = r_const->w1(fuel_mod)
-	w10d = r_const->w10(fuel_mod)
-	w100d = r_const->w100(fuel_mod)
-	w1000d = r_const->w1000(fuel_mod)
-	wherb = r_const->whrb(fuel_mod)
-	wwood = r_const->wwd(fuel_mod)
-	depth = r_const->dp(fuel_mod)
-	sg1d = r_const->s1(fuel_mod)
-	sg10d = r_const->s10(fuel_mod)
-	sg100d = r_const->s100(fuel_mod)
-	sg1000d = r_const->s1000(fuel_mod)
-	sgherb = r_const->shrb(fuel_mod)
-	sgwood = r_const->swd(fuel_mod)
-	extmoi = r_const->emo(fuel_mod)
-	hd = r_const->hd(fuel_mod)
 
-	c1 = 0.046
-
-	w1d = w1d * c1
-	w10d = w10d * c1
-	w100d = w100d * c1
-	w1000d = w1000d * c1
-	wherb = wherb * c1
-	wwood = wwood * c1              ; conversions from T/Ac to lbs/ft^2
-;/
 	hveg = conform_dims((/latlen, lonlen/), "pregreen", -1)                ; pregreen, greenup, green, transition, cured, frozen
 	greendays = prec(0, :, :)
 	greendays = 0.
