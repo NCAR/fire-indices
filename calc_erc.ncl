@@ -23,13 +23,22 @@ load "calc_just_erc.ncl"
 
 
 /;
- w1d,w10d,w100d,w1000d,wherb,wwood,depth,sg1d,sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd are read in according to the fuel model
- fm1, fm10, fm100, fm1000 are the same as mc1, mc10, mc100, mc1000, the percent moisture content of 1-, 10-, 100-, 1000-hour timelag
- erc is energy release component
+        time: time series of all variables
+        prec: 24 hour (daily) precipitation (in inches/day)
+        tmax: daily maximum temperature (in Fahrenheit)
+        tmin: daily minimum temperature (in Fahrenheit)
+        rhmax: daily maximum relative humidity (in percent)
+        rhmin: daily minimum relative humidity (in percent)
+        lat: latitude coordinates for all variables
+        lon: longitude coordinates for all variables
+	rsds: solar radiation (Downwelling shortwave radiation, in W m-2)
+	huss: specific humidity (in kg/kg)
+        b: array of constants over latitude and longitude, used in the determination of the duration of precipitation
+	fm100: percent moisture content for 100-hr timelag (in percent)
+	fm1000: percent moisture content for 100-hr timelag (in percent)
 ;/
 
 function calc_erc(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, rsds, huss, b, fm100, fm1000)
-;local stdl, rhodl, sdl, etasdl, fctcur, wherbc, w1dp, wherbp, wtotd, wtotl, wtot, w1n, w10n, wherbn, wwoodn, wtotln, rhobed, rhobar, betbar, hnu1, hnu10, hnu100, hnherb, hnwood, wrat, fmff, extliv, sa1, sa10, sa100, sherbc, sawood, sadead, salive, fct1, fct10, fct100, fcherb, fcwood, fcded, fcliv, sgbrd, sgbrl, sgbrt, fct1e, fct10e, fct100e, fct1000e, fwoode, fhrbce, fcdede, fclice, wdedne, wlivne, sgbrde, sgbrle, sgbrte, betope, gmamxe, ade, gmapme, wftmde, wtfmle, dedrte, livrte, etamde, etamle, ire, tau, erc
 local r_const, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
 
 begin
