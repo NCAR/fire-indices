@@ -60,8 +60,6 @@ r_tmin = addfile(tminfile, "r")
 r_fm1000 = addfile(fm1000file, "r")
 r_fm100 = addfile(fm100file, "r")
 r_huss = addfile(hussfile, "r")
-;r_z3 = addfile(z3_in, "r")
-;r_z3 = addfile("pdur_jolly_22i.nc", "r")
 r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
 ;r_elev = addfile(elev_in, "r")
 
@@ -134,7 +132,7 @@ huss = r_huss->huss
 ;b = r_z3->Z3
 ;elev = r_elev->orog
 elev = 500.
-grid = "NAM-22i"
+;grid = "NAM-22i"
 
 fuel_model = "G"
 

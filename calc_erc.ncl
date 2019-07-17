@@ -46,8 +46,6 @@ begin
 
 	elev = 500.
 
-	b = pjolly(grid)
-
 	latlen = dimsizes(lat)
 	lonlen = dimsizes(lon)
 	timelen = dimsizes(time)	
@@ -59,7 +57,7 @@ begin
 
 	annperen = "annual"     ; in MATLAB code, 1 == annual, 2 == perennial
 	climat = 3      ;climat is NFDRS Climate class
-	pptdur = calc_pduration(b, prec, latlen, lonlen)        ; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
+	pptdur = calc_pduration(grid, prec, latlen, lonlen)        ; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
 
 	hveg = conform_dims((/latlen, lonlen/), "pregreen", -1)                ; pregreen, greenup, green, transition, cured, frozen
 	greendays = prec(0, :, :)
