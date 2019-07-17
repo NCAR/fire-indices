@@ -2,7 +2,7 @@
 2018, Copyright University Corporation for Atmospheric Research
 ;/
 
-
+load "pjolly.ncl"
 load "calc_julian_day.ncl"
 load "calc_vpd.ncl"
 load "calc_gsi.ncl"
@@ -33,19 +33,20 @@ load "calc_just_erc.ncl"
         lon: longitude coordinates for all variables
 	rsds: solar radiation (Downwelling shortwave radiation, in W m-2)
 	huss: specific humidity (in kg/kg)
-        b: array of constants over latitude and longitude, used in the determination of the duration of precipitation
+	grid: string argument consisting of either the name of a grid ("NAM-22i" or "NAM-44i") or the name of a custom file that contains array of constants over latitude and longitude, used in the determination of the duration of precipitation
 	fm100: percent moisture content for 100-hr timelag (in percent)
 	fm1000: percent moisture content for 100-hr timelag (in percent)
 	fuel_mod: a letter A-U excluding M which signifies a fuel model as in the NFDRS paper
 ;/
 
-function calc_erc(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, rsds, huss, b, fm100, fm1000, fuel_mod)
-local r_const, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
+function calc_erc(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, rsds, huss, grid, fm100, fm1000, fuel_mod)
+local b, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
 
 begin
 
-	r_const = addfile("erc_constants.nc", "r")
 	elev = 500.
+
+	b = pjolly(grid)
 
 	latlen = dimsizes(lat)
 	lonlen = dimsizes(lon)

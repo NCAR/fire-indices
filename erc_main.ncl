@@ -61,7 +61,7 @@ r_fm1000 = addfile(fm1000file, "r")
 r_fm100 = addfile(fm100file, "r")
 r_huss = addfile(hussfile, "r")
 ;r_z3 = addfile(z3_in, "r")
-r_z3 = addfile("pdur_jolly_regrid.nc", "r")
+;r_z3 = addfile("pdur_jolly_22i.nc", "r")
 r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
 ;r_elev = addfile(elev_in, "r")
 
@@ -131,13 +131,14 @@ rad = r_rad->rsds
 fm1000 = r_fm1000->fm1000       ;calculated in a different file
 fm100 = r_fm100->fm100
 huss = r_huss->huss
-b = r_z3->Z3
+;b = r_z3->Z3
 ;elev = r_elev->orog
 elev = 500.
+grid = "NAM-22i"
 
 fuel_model = "G"
 
-erc = calc_erc(time, prec, maxtC, mintC, maxrh, minrh, lat, lon, rad, huss, b, fm100, fm1000, fuel_model)
+erc = calc_erc(time, prec, maxtC, mintC, maxrh, minrh, lat, lon, rad, huss, grid, fm100, fm1000, fuel_model)
 
 w_erc->erc = erc	;transfer erc data into file
 
