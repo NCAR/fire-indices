@@ -2,7 +2,6 @@
 2018, Copyright University Corporation for Atmospheric Research
 ;/
 
-
 /;
         time: time series of all variables
         prec: 24 hour (daily) precipitation (in inches/day)
@@ -15,7 +14,17 @@
         b: array of constants over latitude and longitude, used in the determination of the duration of precipitation
 ;/
 
-function calc_fm1000(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, b)
+
+load "calc_emc.ncl"
+load "calc_julian_day.ncl"
+load "calc_daylight_builtin.ncl"
+load "calc_daylight_manual.ncl"
+load "calc_pduration.ncl"
+load "calc_point_pduration.ncl"
+load "calc_paper_pduration.ncl"
+
+
+function calc_fm1000(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, grid)
 local day_year, latlen, lonlen, emcmin, emcmax, climat, pptdur, startup, temp, bndryt, mc1000_r, divsev, tempbnd, bdybar, mc1000, ndays, fr1000, daylit, emcbar, varatts
 begin
 
@@ -27,7 +36,7 @@ begin
 	emcmax = calc_emc(tmin, rhmax)
 
 	climat = 3.     ;possible refinement: create a file with each gridcell assigned a class according to fuel moisture and such, as seen on the cover of The National Fire Danger Rating System: basic equations (1985)
-	pptdur = calc_pduration(b, prec, latlen, lonlen)
+	pptdur = calc_pduration(grid, prec, latlen, lonlen)
 
 	;spin-up conditions
 	startup = 10. + 5.0 * climat

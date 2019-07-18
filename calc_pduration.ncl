@@ -6,6 +6,9 @@
  z3 is a constant corresponding to latitude and longitude
  ppt is precipitation amount
 ;/
+
+load "pjolly.ncl"
+
 function calc_pduration(grid, ppt, latlen, lonlen)    ;this function uses the methods presented by MATLAB code and runs over all of CONUS
 local z3, timelen, z3_1, pdur
 begin

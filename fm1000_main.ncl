@@ -27,7 +27,7 @@ tmaxfile
 tminfile
 rhmaxfile
 rhminfile
-z3_in
+grid
 output
 
 ;/
@@ -43,7 +43,7 @@ r_tempmin = addfile(tminfile, "r")
 r_hummin = addfile(rhminfile, "r")
 r_hummax = addfile(rhmaxfile, "r")
 r_pr = addfile(precfile, "r")
-r_z3 = addfile(z3_in, "r")
+;r_z3 = addfile(z3_in, "r")
 
 timeTA = r_tempmax->time
 timeTI = r_tempmin->time
@@ -81,7 +81,7 @@ do i = 0,dimsizes(att_names)-1                         ;transfer global attribut
   w_fm1000@$att_names(i)$ = r_pr@$att_names(i)$
 end do
 
-history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts calc_emc.ncl, calc_julian_day.ncl, calc_daylight_builtin.ncl, calc_daylight_manual.ncl, calc_pduration.ncl, and fm1000_main, from source files "+precfile+ ", "+tmaxfile+ ", "+tminfile+", " + rhmaxfile+", "+rhminfile+", "+z3_in
+history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts calc_emc.ncl, calc_julian_day.ncl, calc_daylight_builtin.ncl, calc_daylight_manual.ncl, calc_pduration.ncl, and fm1000_main, from source files "+precfile+ ", "+tmaxfile+ ", "+tminfile+", " + rhmaxfile+", "+rhminfile
 w_fm1000@history = history
 
 ; copy variables
@@ -110,9 +110,9 @@ convert_prec("inches/day", pr)
 lat = r_tempmax->lat
 lon = r_tempmax->lon
 
-b = r_z3->Z3
+;b = r_z3->Z3
 
-mc1000 = calc_fm1000(time, pr, maxtemp, mintemp, maxhum, minhum, lat, lon, b)
+mc1000 = calc_fm1000(time, pr, maxtemp, mintemp, maxhum, minhum, lat, lon, grid)
 
 w_fm1000->fm1000 = mc1000
 

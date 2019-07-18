@@ -23,7 +23,7 @@ load "calc_paper_pduration.ncl"
         b: array of constants over latitude and longitude, used in the determination of the duration of precipitation
 ;/
 
-function calc_fm100(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, b)
+function calc_fm100(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, grid)
 local climcl, fm100, yfm, emcmax, emcmin, day_year, latlen, lonlen, pptdur, fr100, emcbar, ndays, daylit, bndryh1, bndryh, varatts
 begin
 
@@ -39,7 +39,7 @@ begin
 
 	latlen = dimsizes(lat)
 	lonlen = dimsizes(lon)
-	pptdur = calc_pduration(b, prec, latlen, lonlen)
+	pptdur = calc_pduration(grid, prec, latlen, lonlen)
 
 	fr100 = 1.0 - 0.87 * exp(-0.24)
 

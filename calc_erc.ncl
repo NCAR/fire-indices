@@ -2,7 +2,6 @@
 2018, Copyright University Corporation for Atmospheric Research
 ;/
 
-load "pjolly.ncl"
 load "calc_julian_day.ncl"
 load "calc_vpd.ncl"
 load "calc_gsi.ncl"
