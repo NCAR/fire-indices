@@ -11,6 +11,7 @@ begin
 
 	cal = cd_calendar(time, opt)
 	cal1 = tointeger(cal)
+	cal1@calendar = time@calendar
 	day_year = day_of_year(cal1(:,0), cal1(:,1), cal1(:,2))
 
 	return(day_year)
