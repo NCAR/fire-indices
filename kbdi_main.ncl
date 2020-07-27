@@ -1,17 +1,25 @@
-; kbdi main
-; precipitation is either pr or prec. Alter for whichever dataset is being used, lines have been marked with @@@ in comment.
+/;
+2018, Copyright University Corporation for Atmospheric Research
+;/
 
-; read in from 2 files: daily precipitation and daily maximum temperatures
-; The following variables should be specified as command-line arguments (ncl file = \"$file\" script.ncl):
-; precfile = \"some file\"	read in
-; tmaxfile = \"some file\"	read in
-; output = \"kbdi.nc\"	write out
+/;
+The following variables should be specified as command-line arguments
+ e.g.: ncl file=\"$file\" script.ncl
+
+	precfile
+	tmaxfile
+	output (the file to be written to)
+
+Example of command-line to call kbdi_main:
+ncl kbdi_main.ncl precfile=\"prec.METDATA.22i.nc\" tmaxfile=\"tmax.METDATA.22i.nc\" output=\"kbdi.METDATA.22i.nc\"
+
+;/
 
 load "calc_kbdi.ncl"
-load "convert_temp.ncl"
-load "convert_prec.ncl"
 load "check_time.ncl"
 load "clip_time.ncl"
+
+;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 begin
 
@@ -52,42 +60,21 @@ do i = 0, dimsizes(var_names)-1			;attach all variables but precipitation onto K
 	end if
 end do
 
-
 ;read in daily precipitation
-daily_precip = read_precip->prec	;@@@
+daily_precip = read_precip->prec
+
 
 ;read in maximum daily temperature
 tmax = read_temper->tmax
 
-;calculate mean annual precipitation, save to variable mean_ann_precip
-total_precip = dim_sum_n(daily_precip,0)	; add all precipitation values together by location (one value per lat,lon coordinate)
-
 calendar = read_precip->time@calendar
-ndaysyear = 365.2425	;gregorian or standard length of year
 
-if(calendar .eq. "noleap" .or. calendar .eq. "365_day") then
-	ndaysyear = 365.0
-else if(calendar .eq. "all_leap" .or. calendar .eq. "366_day") then
-	ndaysyear = 366.0
-else if(calendar .eq. "360_day") then
-	ndaysyear = 360.0
-end if
-end if
-end if
+;units = (/ 0, 0 /)	;(/ tmax - degC, prec - mm/day /)
+units = -1	;-1 corresponds to metadata
 
-ndays = dimsizes(read_precip->time)		; extracts number of days in a daily dataset
-nyears = ndays/ndaysyear
-mean_ann_precip = total_precip / nyears		; note that this may need to be adjusted to account for ragged edges, worked for the sample file
-mean_ann_precip@units = daily_precip@units
+kbdi = calc_kbdi(daily_precip, tmax, calendar, units)
 
-;convert temp and prec
-convert_temp("degF", tmax)			;convert to Fahrenheit
-convert_prec("inches/day", mean_ann_precip)
-convert_prec("inches/day", daily_precip)
-
-kbdi = calc_kbdi(daily_precip, tmax, mean_ann_precip)
-
-KBDI_out->KBDI = kbdi
+KBDI_out->kbdi = kbdi
 
 end
 

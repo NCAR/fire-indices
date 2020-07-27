@@ -2,26 +2,31 @@
 2018, Copyright University Corporation for Atmospheric Research
 ;/
 
+/;
+The following variables should be specified as command-line arguments
+ e.g.: ncl file=\"$file\" script.ncl
 
-load "calc_ffmc.ncl"
-load "calc_dmc.ncl"
-load "calc_dc.ncl"
-load "calc_isi.ncl"
-load "calc_bui.ncl"
-load "convert_temp.ncl"
-load "convert_prec.ncl"
-load "convert_humid.ncl"
+        precfile (daily precipitation)
+        tmaxfile (daily maximum temperature)
+        hursfile (daily relative humidity)
+	spdfile (daily wind speed)
+        output (the file to be written to)
+
+Example of command-line to call cfwi_main:
+
+ncl cfwi_main.ncl tmaxfile=\"tmax.METDATA.22i.1987-1988.nc\" hursfile=\"hurs.METDATA.22i.1987-1988.nc\" spdfile=\"spd.METDATA.22i.1987-1988.nc\" precfile=\"prec.METDATA.22i.1987-1988.nc\" output=\"cfwi.METDATA.22i.1987-1988.nc\"
+(note: the two-year timespan includes a year of spinup -- only the second year is actually intended for use)
+;/
+
 load "calc_cfwi.ncl"
 load "check_time.ncl"
 load "clip_time.ncl"
 
-;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+;these are now automatically loaded with versions of NCL 6.5 and up
+;load "crop.ncl"		;for use when paths are not set up correctly (the quick and dirty fix)
+;load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/crop.ncl"	;for use in any other situation, aka the proper way
 
-; main body of code (finally)
-; command line inputs are: precfile = daily precipitation
-;			hursfile = daily relative humidity
-;			spdfile = wind speed in m/s
-;			tmaxfile = daily maximum temperature
+;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 begin
 
@@ -67,6 +72,7 @@ end do
 history = "Create " + systemfunc("date") + " by " + systemfunc("whoami") + "@" + systemfunc("hostname") + " using NCL scripts calc_ffmc.ncl, calc_dmc.ncl, calc_dc.ncl, calc_isi.ncl, calc_bui.ncl, and cfwi_main.ncl from source files " + precfile + ", " + hursfile + ", " + spdfile + ", " + tmaxfile
 w_cfwi@history = history
 
+;write out variables like lat, lon, time 
 var_names = getfilevarnames(r_prec)
 
 do i = 0, dimsizes(var_names)-1
@@ -76,22 +82,26 @@ do i = 0, dimsizes(var_names)-1
 end do
 
 pr = r_prec->prec
-convert_prec("mm/day", pr)
 humid = r_humid->hurs
-;rhmax = r_rhmax->rhmax
+
+;rhmax = r_rhmax->rhmax		;when hurs (average humidity) is not available, load rhmax and rhmin, and then calculate the simple average
 ;rhmin = r_rhmin->rhmin
 ;humid = (rhmin + rhmax) / 2
-;humid@units = rhmax@units
-convert_humid("%", humid)
+;humid@units = rhmax@units	;assign metadata for units, which is used in unit conversion
+
 windsp = r_wdsp->spd
+;windsp = r_wdsp->sfcWind
 temp = r_temp->tmax		;technically supposed to be noon temp, but max temperature is the closest
-convert_temp( "degC", temp)	; convert anything into Celsius if not already
+;temp = r_temp->tasmax
 time = r_prec->time
 
 lat = r_prec->lat
 lon = r_prec->lon
 
-cfwi = calc_cfwi(time, temp, humid, windsp, pr, lat, lon)
+;units=(/-1, -1, -1, -1/)      ;(/ temp, prec, hum, wind/) (all -1 indicates units taken from metadata)
+units= -1	; -1 corresponds to metadata units
+
+cfwi = calc_cfwi(temp, pr, humid, windsp, time, lat, lon, units)
 
 w_cfwi->cfwi = cfwi
 

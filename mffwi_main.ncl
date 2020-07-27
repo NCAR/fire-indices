@@ -2,9 +2,23 @@
 2018, Copyright University Corporation for Atmospheric Research
 ;/
 
+/;
+The following variables should be specified as command-line arguments
+ e.g.: ncl file=\"$file\" script.ncl
+
+        precfile (daily precipitation)
+        tmaxfile (daily maximum temperature)
+	hursfile (daily relative humidity)
+	kbdifile (daily Keetch Byram Drought Index)
+        output (the file to be written to)
+
+Example of command-line to call mffwi_main:
+
+ncl mffwi_main.ncl tmaxfile=\"tmax.METDATA.22i.1987-1988.nc\" hursfile=\"hurs.METDATA.22i.1987-1988.nc\" spdfile=\"spd.METDATA.22i.1987-1988.nc\" kbdifile=\"kbdi.METDATA.22i.1987-1988.nc\" output=\"mffwi.METDATA.22i.1987-1988.nc\"
+
+;/
+
 load "calc_mffwi.ncl"
-load "convert_temp.ncl"
-load "convert_humid.ncl"
 load "check_time.ncl"
 load "clip_time.ncl"
 
@@ -14,12 +28,12 @@ begin
 
 ;read in from four files: surface wind, daily maximum temperature, daily average humidity, daily kbdi
 ; on command line, spdfile, tmaxfile, kbdifile, and hursfile must be specified, with "output" for file to write to
-;if average humidity not available, input maximum and minimum humidity and do a simple average (currently set up to do this)
+;if average humidity not available, input maximum and minimum humidity and do a simple average (currently set up to do this, but commented out)
 r_wind = addfile(spdfile, "r")
 r_temp = addfile(tmaxfile, "r")
 r_humid = addfile(hursfile, "r")	;when average humidity available
-;r_rhmax = addfile(rhmaxfile, "r")
-;r_rhmin = addfile(rhminfile, "r")
+;r_rhmax = addfile(rhmax_in, "r")
+;r_rhmin = addfile(rhmin_in, "r")
 r_kbdi = addfile(kbdifile, "r")	;open all data
 
 timeW = r_wind->time
@@ -59,25 +73,25 @@ mffwi_out@history = history
 
 var_names = getfilevarnames(r_temp)
 
-do i = 0, dimsizes(var_names)-1
+do i = 0, dimsizes(var_names)-1		;read out 
 	if (var_names(i) .ne. "tmax") then
                 mffwi_out->$var_names(i)$ = r_temp->$var_names(i)$
         end if
 end do
 
 wind = r_wind->spd
-wind = wind * 2.23694			; convert m/s to mph
 hum = r_humid->hurs			; relative humidity
 ;rhmin = r_rhmin->rhmin
 ;rhmax = r_rhmax->rhmax
 ;hum = (rhmax + rhmin) / 2.0		; calculate average of rhmax and rhmin
 ;hum@units = rhmax@units
-convert_humid("%", hum)
 temp = r_temp->tmax			; assume that the index uses  maximum temperature of the day. Not specified in any paper
-convert_temp("degF", temp)		; convert anything to degrees Fahrenheit
 kbdi = r_kbdi->KBDI			; calculate KBDI before calculating mFFWI
 
-mffwi = calc_mFFWI(wind, hum, temp, kbdi)
+;units = (/0, 0, -1/)	;(/ temp - degC, hum - %, wind - m/s /)
+units = -1	; -1 corresponds to metadata
+
+mffwi = calc_mffwi(temp, hum, wind, kbdi, units)
 
 mffwi_out->mffwi = mffwi	;create mffwi variable, write mffwi values in output file
 

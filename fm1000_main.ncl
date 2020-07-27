@@ -8,29 +8,30 @@
     "errLevel" : "Fatal"          ; only report Fatal errors
   end setvalues
 
-
-; Calculate fm1000. Independent fire index, also used as an input in ERC
-
-load "convert_temp.ncl"
-load "convert_prec.ncl"
-load "convert_humid.ncl"
-load "check_time.ncl"
-load "clip_time.ncl"
-load "calc_fm1000.ncl"
-
 /;
 The following variables should be specified as command-line arguments
  e.g.: ncl file=\"$file\" script.ncl
 
-precfile
-tmaxfile
-tminfile
-rhmaxfile
-rhminfile
-grid
-output
+	precfile (daily precipitation)
+	tmaxfile (daily maximum temperature)
+	tminfile (daily minimum temperature)
+	rhmaxfile (daily maximum relative humidity)
+	rhminfile (daily minimum relative humidity)
+	grid (NAM-22i, NAM-44i, or custom file path)
+	output (file to write out to)
 
+Example of command-line to call fm1000_main:
+
+ncl fm1000_main.ncl grid=\"NAM-22i\" tmaxfile=\"tmax.METDATA.22i.1987-1988.nc\" tminfile=\"tmin.METDATA.22i.1987-1988.nc\" rhmaxfile=\"rhmax.METDATA.22i.1987-1988.nc\" rhminfile=\"rhmin.METDATA.22i.1987-1988.nc\" precfile=\"prec.METDATA.22i.1987-1988.nc\" output=\"fm1000.METDATA.22i.1987-1988.nc\"
+(note: the two-year timespan includes a year of spinup -- only the second year is actually intended for use)
 ;/
+
+; Calculate fm1000. Independent fire index, also used as an input in ERC
+
+load "check_time.ncl"
+load "clip_time.ncl"
+load "calc_fm1000.ncl"
+
 
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -44,7 +45,8 @@ r_hummin = addfile(rhminfile, "r")
 r_hummax = addfile(rhmaxfile, "r")
 r_pr = addfile(precfile, "r")
 ;r_z3 = addfile(z3_in, "r")
-
+/;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 timeTA = r_tempmax->time
 timeTI = r_tempmin->time
 timeHA = r_hummax->time
@@ -68,7 +70,8 @@ if(check .lt. 4) then   ;check should sum to 4 if all variables have same time l
 end if
 
 print("Time limits match on all variables")
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+;/
 system("rm -f "+output)
 w_fm1000 = addfile(output, "c")	;create output file
 
@@ -85,7 +88,7 @@ history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+syst
 w_fm1000@history = history
 
 ; copy variables
-var_names = getfilevarnames (r_pr)
+var_names = getfilevarnames(r_pr)
 
 do i = 0, dimsizes(var_names)-1
    if (var_names(i) .ne. "prec") then
@@ -95,24 +98,22 @@ end do
 
 time = r_tempmax->time
 maxtemp = r_tempmax->tmax
-convert_temp("degF", maxtemp)
 mintemp = r_tempmin->tmin
-convert_temp("degF", mintemp)
 
 minhum = r_hummin->rhmin
 maxhum = r_hummax->rhmax
-convert_humid("%", minhum)
-convert_humid("%", maxhum)
 
 pr = r_pr->prec
-convert_prec("inches/day", pr)
 
 lat = r_tempmax->lat
 lon = r_tempmax->lon
 
 ;b = r_z3->Z3
 
-mc1000 = calc_fm1000(time, pr, maxtemp, mintemp, maxhum, minhum, lat, lon, grid)
+units=(/0, 0, 0, 0, 0/)
+;units=-1
+
+mc1000 = calc_fm1000(maxtemp, mintemp, pr, maxhum, minhum, time, lat, lon, grid, units)
 
 w_fm1000->fm1000 = mc1000
 

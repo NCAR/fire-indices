@@ -2,49 +2,31 @@
 2018, Copyright University Corporation for Atmospheric Research
 ;/
 
-load "calc_erc.ncl"
-load "convert_temp.ncl"
-load "convert_prec.ncl"
-load "convert_humid.ncl"
-load "check_time.ncl"
-load "clip_time.ncl"
-
 /;
 The following variables should be specified as command-line arguments
  e.g.: ncl file=\"$file\" script.ncl
 
-precfile
-rsdsfile
-hussfile
-rhmaxfile
-rhminfile
-tmaxfile
-tminfile
-fm1000file
-fm100file
-output
+        precfile (daily precipitation)
+        tmaxfile (daily maximum temperature)
+        tminfile (daily minimum temperature)
+        rhmaxfile (daily maximum relative humidity)
+        rhminfile (daily minimum relative humidity)
+	hussfile (daily specific humidity with units kg/kg)
+	rsdsfile (daily downwelling shortwave radiation with units W m-2)
+	fm100file (daily 100-hour timelag fuel moisture)
+	fm1000file (daily 1000-hour timelag fuel moisture)
+        grid (NAM-22i, NAM-44i, or custom file path)
+        output (file to write out to)
 
-optionally:
-elev_in
-z3_in   ; this is a coefficient for converting precipitation amount to precipitation duration
+Example of command-line to call erc_main:
 
+ncl erc_main.ncl tmaxfile=\"tmax.METDATA.22i.1987-1988.nc\" tminfile=\"tmin.METDATA.22i.1987-1988.nc\" rhmaxfile=\"rhmax.METDATA.22i.1987-1988.nc\" rhminfile=\"rhmin.METDATA.22i.1987-1988.nc\" precfile=\"prec.METDATA.22i.1987-1988.nc\" hussfile=\"huss.METDATA.22i.1987-1988.nc\" fm100file=\"fm100.METDATA.22i.1987-1988.nc\" fm1000file=\"fm1000.METDATA.22i.1987-1988.nc\" rsdsfile=\"rsds.METDATA.22i.1987-1988.nc\" grid=\"NAM-22i\" fuel_model=\"G\" output=\"erc.METDATA.22i.1987-1988.nc\"
+(note: the two-year timespan includes a year of spinup -- only the second year is actually intended for use)
 ;/
 
-
-;Calculate ERC with these inputs:
-/;
-precipitation (in mm)
-solar radiation (Downwelling shortwave radiation, in W m-2)
-specific humidity (kg/kg)
-maximum and minimum relative humidity (on a 0 to 100 scale)
-maximum and minimum temperature (in Celsius)
-optionally, altitude	(default is 500 m)
-
-secondarily,
-latitude
-longitude
-time
-;/
+load "calc_erc.ncl"
+load "check_time.ncl"
+load "clip_time.ncl"
 
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,13 +43,12 @@ r_fm1000 = addfile(fm1000file, "r")
 r_fm100 = addfile(fm100file, "r")
 r_huss = addfile(hussfile, "r")
 r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
-;r_elev = addfile(elev_in, "r")
 
 ; if fm100 and fm1000 have been calculated, temperature, precipitation, and humidity must already match in every dimension. Only need to check time for specific humidity, solar radiation compared to fm100
 timeSH = r_huss->time
 timeR = r_rad->time
 time100 = r_fm100->time
-
+/;
 check = check_time("specific humidity", "solar radiation", timeSH, timeR)
 check = check + check_time("solar radiation", "FM100", timeR, time100)
 
@@ -82,6 +63,7 @@ end if
 
 print("Time limits match on all variables")
 
+;/
 
 system("rm -f "+output)
 w_erc = addfile(output, "c") ;create new file to store erc
@@ -114,17 +96,12 @@ lon = r_pr->lon
 time = r_pr->time
 
 maxtC = r_tmax->tmax	;NOTE: temperature is actually needed in Celsius AND Fahrenheit!
-convert_temp("degC", maxtC)	;convert to Celsius if not already
 mintC = r_tmin->tmin
-convert_temp("degC", mintC)
 
 maxrh = r_rhmax->rhmax
 minrh = r_rhmin->rhmin
-convert_humid("%", maxrh)
-convert_humid("%", minrh)
 
 prec = r_pr->prec
-convert_prec("inches/day", prec)
 rad = r_rad->rsds
 fm1000 = r_fm1000->fm1000       ;calculated in a different file
 fm100 = r_fm100->fm100
@@ -133,10 +110,10 @@ huss = r_huss->huss
 ;elev = r_elev->orog
 elev = 500.
 ;grid = "NAM-22i"
+;units=-1
+units=(/0,0,0,0,0/)
 
-fuel_model = "G"
-
-erc = calc_erc(time, prec, maxtC, mintC, maxrh, minrh, lat, lon, rad, huss, grid, fm100, fm1000, fuel_model)
+erc = calc_erc(maxtC, mintC, prec, maxrh, minrh, rad, huss, fm100, fm1000, time, lat, lon, grid, fuel_model, units)
 
 w_erc->erc = erc	;transfer erc data into file
 
