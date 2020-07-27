@@ -4,9 +4,12 @@ Code for calculating various fire indices for a research project about simultane
 ## Overview
 Fire indices can show the current fire danger, the severity of drought in an area, and likelihood of spread. All the indices in this repository have been written in the NCAR Command Language (NCL). They use a variety of inputs. All of them use precipitation, many use temperature, while others also use solar radiation, wind speeds, and humidity. In combination, a variety of fire indices may be able to be used to pinpoint areas of extreme fire danger and severity, with focus on synchronous large wildfires across the contiguous United States. 
 
-Please note that all units mentioned are the ones that the files are currently set up to use, but will most likely be modified to be more consistent. All temperature inputs can be input as Kelvin, Celsius, or Fahrenheit. All precipitation inputs can be input as mm/day or kg m-2 s-1. Relative humidity inputs can be on a 0-1 scale (units = "1") or 0-100 scale (units = %)
+Unit handling is available for any temperature, relative humidity, precipitation, and wind variables. Solar radiation variables must be in W/m2 and specific humidity must be in kg/kg. 
 
-All main files (except SPI3) have built-in checks that ensure that the length of the time attribute in every file is the same, and that their start and end dates match within 24 hours. 
+All main files (except SPI3) have built-in checks that ensure that the length of the time attribute in every file is the same, and that their start and end dates match within 24 hours.
+
+## Running fire indexes
+The fire index functions can be run from the command line by using the <fire_index>\_main.ncl files. They include examples of how to run them, as well as some explaination regarding inputs. For some variables, such as the grid variable used in FM100, FM1000, ERC, and BI there is further explanation within the calc_<fire_index>.ncl files. 
 
 ## SPI3
 SPI3 is the 3 month standard precipitation index. The only input into SPI3 is monthly precipitation in any units.
@@ -23,14 +26,14 @@ KBDI relies on the previous day's KBDI to formulate the current day's KBDI. It h
 The code is based on calculations made in "A Drought Index for Fire Control" by John Keetch and George Byram in 1968. 
 
 ## mFFWI
-mFFWI is the modified Fosberg Fire Weather Index. Its inputs are daily surface windspeed in m/s, daily maximum temperature, daily relative humidity, and KBDI. The final calculations require windspeed in mph, but a conversion is built in to the function.
+mFFWI is the modified Fosberg Fire Weather Index. Its inputs are daily surface windspeed, daily maximum temperature, daily relative humidity, and KBDI.
 
 The modified Fosberg index has a stronger correlation to area burned than the original Fosberg index. This is due to the inclusion of KBDI, and therefore precipitation, into the calculations. Technically, mFFWI starts at 0 and is an open ended scale, but usually exists between 0 and 100. mFFWI values above 50 suggest significant fire danger. Below 25 suggests little fire danger.
 
 Each calculation is independent of the previous day. Additionally, the code expects KBDI as an input, so KBDI calculations should always be completed before running mFFWI.
 
 ## CFWI
-CFWI is the Canadian Fire Weather Index. Its inputs are daily surface windspeed in m/s, daily maximum temperature, daily relative humidity, and daily precipitation. Some datasets do not have average daily humidity, in which case use the inputs of daily max and min humidities, averaged together. The current code is currently set up to take in the two and average them.
+CFWI is the Canadian Fire Weather Index. Its inputs are daily surface windspeed, daily maximum temperature, daily relative humidity, and daily precipitation. Some datasets do not have average daily humidity, in which case use the inputs of daily max and min humidities, averaged together. The code can read in either average humidity or daily max and min, with the max and min version currently commented out.
 
 CFWI usually operates in a smaller range than other fire indices. Typically, 0-5 is considered low fire danger, 5-10 is moderate, 10-20 is high, 20-30 is very high, and anything greater than 30 is considered extreme.
 
@@ -51,8 +54,17 @@ FM1000 ranges from 0 to 45, though in most of the US, it rarely reaches above 35
 Currently, it only serves as an input to ERC, but may be used as a separate index. Also like FM100, in the NFDRS 1985 equations paper, FM1000 is referred to as MC1000.
 
 ## ERC 
-ERC is the Energy Release Component. Its inputs are daily maximum and minimum temperature, daily precipitation, daily minimum and maximum relative humidity, daily downwelling shortwave radiation in W/m^2, daily specific humidity in kg/kg, 100 hour fuel moisture, and 1000 hour fuel moisture. 
+ERC is the Energy Release Component. Its inputs are daily maximum and minimum temperature, daily precipitation, daily minimum and maximum relative humidity, daily downwelling shortwave radiation in W/m^2, daily specific humidity in kg/kg, 100 hour fuel moisture, and 1000 hour fuel moisture.
+
+There are many options surrounding the fuel model portion of the code. The NFDRS fuel models are letters A-L, N-U. An overview of their distributions in the US and descriptive names for each can be seen here: https://www.wfas.net/index.php/nfdrs-fuel-model-static-maps-44
+
+Work surrounding adapting the map to calculated ERC across large areas of the United States is currently in progress. 
 
 Like CFWI, several intermediate steps rely on the previous day's calculations. This index is by far the most computationally complex and the most time consuming to run. Previous work suggests that it is very accurate, however. ERC typically ranges from 0 to 80, where 0 is low fire danger and 80 is severe fire danger. Drier, hotter regions may get higher than 80, though, as it is an open ended scale.
 
 The code is almost exclusively adapted from code from John Abatzoglou. 
+
+## BI
+BI is Burning Index. Its inputs are daily maximum and minimum temperature, daily precipitation, daily minimum and maximum relative humidity, daily windspeed, daily downwelling shortwave radiation in W/m^2, daily specific humidity in kg/kg, 100 hour fuel moisture, 1000 hour fuel moisture, and Energy Release Component.
+
+Like ERC, there are options for the fuel model inputs. It is closely related to ERC in many ways.
