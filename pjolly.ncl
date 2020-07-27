@@ -3,7 +3,6 @@
 ;/
 
 ;grid - string
-;opt - boolean
 
 function pjolly(grid)
 local b, dblquote, r_z3

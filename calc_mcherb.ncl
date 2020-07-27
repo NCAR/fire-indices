@@ -41,7 +41,7 @@ begin
 	mcherb = mc1    ;pregreen stage
 
 	fherbf = herbga + herbgb * x1000 < 250
-	mcherb = where(hveg .eq. "greenup", (mc1 + (fherbf - mc1) * gren) < 250 , mcherb)               ; this version from MATLAB code
+	mcherb = where(hveg .eq. "greenup", (mc1 + (fherbf - mc1) / 100 * gren) < 250 , mcherb)               ; this version from MATLAB code
 	mcherb = where(hveg .eq. "green", (herbga + herbgb * x1000) < 250, mcherb)
 
 	ymherb = where(hveg .eq. "green" .and. ymherb .lt. 0., mcherb, ymherb)
@@ -59,17 +59,19 @@ begin
 
 	;mcherb = where(igrass .eq. "perennial" .and. hveg .eq. "transition", mcherb > 30, mcherb)      ;perennials are not allowed to go below 30%
 	if(igrass .eq. "perennial") then
-	        mcherb = where(hveg .eq. "transition", mcherb > 30., mcherb)
+	        mcherb = where(hveg .eq. "transition", mcherb > 30., mcherb)	;perennials must stay in the range 30%-150% in transition and in curing
+		mcherb = where(hveg .eq. "transition", mcherb < 150., mcherb) ;NEW LINE
 	end if
 
 	;mcherb = where(hveg .eq. "cured", where(igrass .eq. "annual", perta + pertb * x1000, mc1), mcherb)
 	if(igrass .eq. "perennial")
 	        mcherb = where(hveg .eq. "cured", (perta + pertb * x1000) > 30, mcherb)
+		mcherb = where(hveg .eq. "cured", mcherb < 150, mcherb)	;NEW LINE
 	else
 	        mcherb = where(hveg .eq. "cured", mc1, mcherb)
 	end if
 
-	return(mcherb < 150)
+	return(mcherb>30)	;herbaceous fuel moisture cannot be below 30%, in accordance with NFDRS2016. Verified w/ John Abatzoglou, implemented 3/16/2020
 
 end
 

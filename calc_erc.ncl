@@ -2,6 +2,10 @@
 2018, Copyright University Corporation for Atmospheric Research
 ;/
 
+load "convert_temp.ncl"
+load "convert_prec.ncl"
+load "convert_humid.ncl"
+load "unit_handling.ncl"
 load "calc_julian_day.ncl"
 load "calc_vpd.ncl"
 load "calc_gsi.ncl"
@@ -18,30 +22,102 @@ load "calc_x1000.ncl"
 load "calc_mcherb.ncl"
 load "calc_mcwood.ncl"
 load "calc_vegstage.ncl"
-load "calc_just_erc.ncl"
-
+load "calc_just_erc_1fuelmod.ncl"
+load "calc_just_erc_hybrid.ncl"
+load "calc_just_erc_nfdrs.ncl"
 
 /;
-        time: time series of all variables
-        prec: 24 hour (daily) precipitation (in inches/day)
-        tmax: daily maximum temperature (in Fahrenheit)
-        tmin: daily minimum temperature (in Fahrenheit)
-        rhmax: daily maximum relative humidity (in percent)
-        rhmin: daily minimum relative humidity (in percent)
-        lat: latitude coordinates for all variables
-        lon: longitude coordinates for all variables
+        tmax: daily maximum temperature
+        tmin: daily minimum temperature
+        prec: 24 hour (daily) precipitation
+        rhmax: daily maximum relative humidity
+        rhmin: daily minimum relative humidity
 	rsds: solar radiation (Downwelling shortwave radiation, in W m-2)
 	huss: specific humidity (in kg/kg)
-	grid: string argument consisting of either the name of a grid ("NAM-22i" or "NAM-44i") or the name of a custom file that contains array of constants over latitude and longitude, used in the determination of the duration of precipitation
 	fm100: percent moisture content for 100-hr timelag (in percent)
 	fm1000: percent moisture content for 100-hr timelag (in percent)
+	grid: string argument consisting of either the name of a grid ("NAM-22i" or "NAM-44i") or the name of a custom file that contains array of constants over latitude and longitude, used in the determination of the duration of precipitation
+        time: time series of all variables
+        lat: latitude coordinates for all variables
+        lon: longitude coordinates for all variables
+        grid: string argument consisting of either the name of a grid ("NAM-22i" or "NAM-44i") or the name of a custom file that contains array of constants over latitude and longitude, used in the determination of the duration of precipitation
 	fuel_mod: a letter A-U excluding M which signifies a fuel model as in the NFDRS paper
+        iounits: integer array corresponding to units of tmax, tmin, prec, rhmax, and rhmin
+
+                  iounit(0)=-1 input tmax (metadata)
+                  iounit(0)=0 input tmax (degC)
+                  iounit(0)=1 input tmax (degK)
+                  iounit(0)=2 input tmax (degF)
+
+                  iounit(1)=-1 input tmin (metadata)
+                  iounit(1)=0 input tmin (degC)
+                  iounit(1)=1 input tmin (degK)
+                  iounit(1)=2 input tmin (degF)
+
+                  iounit(2)=-1 input prec (metadata)
+                  iounit(2)=0 input prec (mm/day)
+                  iounit(2)=1 input prec (inches/day)
+                  iounit(2)=2 input prec (kg m-2 s-1)
+
+                  iounit(3)=-1 input rhmax (metadata)
+                  iounit(3)=0 input rhmax (%)
+                  iounit(3)=1 input rhmax (1)
+
+                  iounit(4)=-1 input rhmin (metadata)
+                  iounit(4)=0 input rhmin (%)
+                  iounit(4)=1 input rhmin (1)
+
 ;/
 
-function calc_erc(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, rsds, huss, grid, fm100, fm1000, fuel_mod)
-local b, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
+function calc_erc(tmax, tmin, prec, rhmax, rhmin, rsds, huss, fm100, fm1000, time, lat, lon, grid, fuel_mod, iounits)
+local units_list, b, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
 
 begin
+
+
+     	;unit conversions for precip, temperature, and humidity
+        size = dimsizes(iounits)
+
+        if(size .eq. 1) then
+                if(iounits .eq. -1) then
+
+                        convert_temp("degC", tmax)
+                        convert_temp("degC", tmin)
+                        convert_humid("%", rhmax)
+                        convert_humid("%", rhmin)
+                        convert_prec("inches/day", prec)
+
+                end if
+
+        else if(size .eq. 5) then
+                units_list = unit_handling((/"tmax", "tmin", "prec", "rhmax", "rhmin"/), iounits)
+                if(units_list(0) .ne. "metadata") then
+                        tmax@units = units_list(0)
+                end if
+                if(units_list(1) .ne. "metadata") then
+                        tmin@units = units_list(1)
+                end if
+                if(units_list(2) .ne. "metadata") then
+                        prec@units=units_list(2)
+                end if
+                if(units_list(3) .ne. "metadata") then
+                        rhmax@units = units_list(3)
+                end if
+                if(units_list(4) .ne. "metadata") then
+                        rhmin@units = units_list(4)
+                end if
+
+                convert_temp("degC", tmax)
+                convert_temp("degC", tmin)
+                convert_humid("%", rhmax)
+                convert_humid("%", rhmin)
+                convert_prec("inches/day", prec)
+
+        else
+            	print("The length of the iounits vector is 5, corresponding to the units for (/tmax, tmin, prec, rhmax, rhmin/)")
+        end if
+	end if
+
 
 	elev = 500.
 
@@ -54,7 +130,7 @@ begin
 	maxsolar = conform_dims((/timelen, latlen, lonlen/), tempsolar, (/0,1/))
 	sow = calc_sow_daily(rsds, prec, maxsolar)
 
-	annperen = "annual"     ; in MATLAB code, 1 == annual, 2 == perennial
+	annperen = "perennial"     ; in MATLAB code, 1 == annual, 2 == perennial
 	climat = 3      ;climat is NFDRS Climate class
 	pptdur = calc_pduration(grid, prec, latlen, lonlen)        ; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
 
@@ -63,10 +139,6 @@ begin
 	greendays = 0.
 	colddays = prec(0, :, :)
 	colddays = 0.
-	;warmdays = prec(0, :, :)
-	;warmdays = 0.
-	;gdd = prec(0, :, :)
-	;gdd = 0.
 	ymherb = prec(0, :, :)
 	ymherb = 50.
 	ymwood = ymherb
@@ -107,6 +179,8 @@ begin
 	erc = 0.0
 	ndays = dimsizes(time)
 
+	printVarSummary(erc)
+
 	do i=0, ndays - 1
 
 	        year = tointeger(floor(i / 365.2425))
@@ -121,8 +195,15 @@ begin
 	        mcwood = calc_mcwood(pregrn, mcwodi, fm1000(i, :, :), climat, hveg, gren, ymwood)
 
 	        hveg = calc_vegstage(colddays, maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
-;	        erc(i, :, :) = (/calc_just_erc(w1d, w10d, w100d, w1000d, wherb, wwood, mcherb, depth, sg1d, sg10d, sg100d, sg1000d, sgherb, sgwood, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, extmoi, hd)/)
-	        erc(i, :, :) = (/calc_just_erc(mcherb, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, fuel_mod)/)
+	        
+		if((fuel_mod .eq. "nfdrs") .or. (fuel_mod .eq. "NFDRS"))
+			erc(i, :, :) = (/calc_just_erc_nfdrs(mcherb, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, fuel_mod)/)
+		else if((fuel_mod .eq. "hybrid") .or. (fuel_mod .eq. "HYBRID"))
+			erc(i, :, :) = (/calc_just_erc_hybrid(mcherb, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, fuel_mod)/)
+		else
+			erc(i, :, :) = (/calc_just_erc_1fuelmod(mcherb, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, fuel_mod)/)
+		end if
+		end if
 
 	        colddays = where(hveg .eq. "curing" .and. mint(i, :, :) .lt. 32., colddays + 1, colddays)
 	        colddays = where(hveg .eq. "frozen", 0, colddays)

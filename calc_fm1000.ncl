@@ -3,18 +3,46 @@
 ;/
 
 /;
-        time: time series of all variables
-        prec: 24 hour (daily) precipitation (in inches/day)
         tmax: daily maximum temperature (in Fahrenheit)
         tmin: daily minimum temperature (in Fahrenheit)
+        prec: 24 hour (daily) precipitation (in inches/day)
         rhmax: daily maximum relative humidity (in percent)
         rhmin: daily minimum relative humidity (in percent)
+        time: time series of all variables
         lat: latitude coordinates for all variables
         lon: longitude coordinates for all variables
-        b: array of constants over latitude and longitude, used in the determination of the duration of precipitation
+        grid: string argument consisting of either the name of a grid ("NAM-22i" or "NAM-44i") or the name of a custom file that contains array of constants over latitude and longitude, used in the determination of the duration of precipitation
+        iounits: integer array corresponding to units of tmax, tmin, prec, rhmax, and rhmin
+
+                  iounit(0)=-1 input tmax (metadata)
+                  iounit(0)=0 input tmax (degC)
+                  iounit(0)=1 input tmax (degK)
+                  iounit(0)=2 input tmax (degF)
+
+                  iounit(1)=-1 input tmin (metadata)
+                  iounit(1)=0 input tmin (degC)
+                  iounit(1)=1 input tmin (degK)
+                  iounit(1)=2 input tmin (degF)
+
+                  iounit(2)=-1 input prec (metadata)
+                  iounit(2)=0 input prec (mm/day)
+                  iounit(2)=1 input prec (inches/day)
+                  iounit(2)=2 input prec (kg m-2 s-1)
+
+                  iounit(3)=-1 input rhmax (metadata)
+                  iounit(3)=0 input rhmax (%)
+                  iounit(3)=1 input rhmax (1)
+
+                  iounit(4)=-1 input rhmin (metadata)
+                  iounit(4)=0 input rhmin (%)
+                  iounit(4)=1 input rhmin (1)
+
 ;/
 
-
+load "convert_temp.ncl"
+load "convert_prec.ncl"
+load "convert_humid.ncl"
+load "unit_handling.ncl"
 load "calc_emc.ncl"
 load "calc_julian_day.ncl"
 load "calc_daylight_builtin.ncl"
@@ -24,9 +52,55 @@ load "calc_point_pduration.ncl"
 load "calc_paper_pduration.ncl"
 
 
-function calc_fm1000(time, prec, tmax, tmin, rhmax, rhmin, lat, lon, grid)
+function calc_fm1000(tmax, tmin, prec, rhmax, rhmin, time, lat, lon, grid, iounits)
 local day_year, latlen, lonlen, emcmin, emcmax, climat, pptdur, startup, temp, bndryt, mc1000_r, divsev, tempbnd, bdybar, mc1000, ndays, fr1000, daylit, emcbar, varatts
 begin
+
+     	;unit conversions for precip, temperature, and humidity
+        size = dimsizes(iounits)
+
+        if(size .eq. 1) then
+                if(iounits .eq. -1) then
+
+                        convert_temp("degF", tmax)
+                        convert_temp("degF", tmin)
+                        convert_humid("%", rhmax)
+                        convert_humid("%", rhmin)
+                        convert_prec("inches/day", prec)
+                else
+                        print("The iounits value "+ iounits +" is not recognized. To indicate that all input units should be taken from metadata, input the value -1. Otherwise, indicate units according to documentation in a vector of (/tmax, tmin, prec, rhmax, rhmin/).")
+
+                end if
+
+        else if(size .eq. 5) then
+                units = unit_handling((/"tmax", "tmin", "prec", "rhmax", "rhmin"/), iounits)
+                if(units(0) .ne. "metadata") then
+                        tmax@units = units(0)
+                end if
+                if(units(1) .ne. "metadata") then
+                        tmin@units = units(1)
+                end if
+                if(units(2) .ne. "metadata") then
+                        prec@units=units(2)
+                end if
+                if(units(3) .ne. "metadata") then
+                        rhmax@units = units(3)
+                end if
+                if(units(4) .ne. "metadata") then
+                        rhmin@units = units(4)
+                end if
+
+                convert_temp("degF", tmax)
+                convert_temp("degF", tmin)
+                convert_humid("%", rhmax)
+                convert_humid("%", rhmin)
+                convert_prec("inches/day", prec)
+
+        else
+                print("The length of the iounits vector is 5, corresponding to the units for (/tmax, tmin, prec, rhmax, rhmin/)")
+        end if
+	end if
+
 
 	day_year = calc_julian_day(time)
 	latlen = dimsizes(lat)

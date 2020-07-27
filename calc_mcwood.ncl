@@ -28,6 +28,8 @@ begin
 	mcwood = where(hveg .eq. "pregreen" .or. hveg .eq. "frozen", pregrn, mcwood)
 	mcwood = where(hveg .eq. "greenup", mcwodi + (mcwodp - mcwodi) * gren / 100., mcwood)   ;mcwodi = pregrn
 
+	mcwood = mcwood > 70	;woody fuel moisture cannot be below 70%, in accordance with NFDRS2016. Verified w/ John Abatzoglou, implemented 3/16/2020
+
 	return(mcwood > pregrn)
 
 end
