@@ -4,7 +4,7 @@ Code for calculating various fire indices for a research project about simultane
 ## Overview
 Fire indices can show the current fire danger, the severity of drought in an area, and likelihood of spread. All the indices in this repository have been written in the NCAR Command Language (NCL). They use a variety of inputs. All of them use precipitation, many use temperature, while others also use solar radiation, wind speeds, and humidity. In combination, a variety of fire indices may be able to be used to pinpoint areas of extreme fire danger and severity, with focus on synchronous large wildfires across the contiguous United States. 
 
-Unit handling is available for any temperature, relative humidity, precipitation, and wind variables. Solar radiation variables must be in W/m2 and specific humidity must be in kg/kg. 
+Unit handling is available for any temperature, relative humidity, precipitation, and wind variables. Solar radiation variables must be in W/m2 and specific humidity must be in kg/kg. Details regarding unit handling can be found in calc_<fire index>.ncl files.
 
 All main files (except SPI3) have built-in checks that ensure that the length of the time attribute in every file is the same, and that their start and end dates match within 24 hours.
 
@@ -60,11 +60,13 @@ There are many options surrounding the fuel model portion of the code. The NFDRS
 
 Work surrounding adapting the map to calculated ERC across large areas of the United States is currently in progress. 
 
-Like CFWI, several intermediate steps rely on the previous day's calculations. This index is by far the most computationally complex and the most time consuming to run. Previous work suggests that it is very accurate, however. ERC typically ranges from 0 to 80, where 0 is low fire danger and 80 is severe fire danger. Drier, hotter regions may get higher than 80, though, as it is an open ended scale.
+Like CFWI, several intermediate steps rely on the previous day's calculations. This index is by far the most computationally complex and the most time consuming to run. Previous work suggests that it is very accurate, however. ERC calculated using fuel model G (which is frequently used) typically ranges from 0 to 80, where 0 is low fire danger and 80 is severe fire danger. Drier, hotter regions may get higher than 80, though, as it is an open ended scale.
 
 The code is almost exclusively adapted from code from John Abatzoglou. 
 
 ## BI
-BI is Burning Index. Its inputs are daily maximum and minimum temperature, daily precipitation, daily minimum and maximum relative humidity, daily windspeed, daily downwelling shortwave radiation in W/m^2, daily specific humidity in kg/kg, 100 hour fuel moisture, 1000 hour fuel moisture, and Energy Release Component.
+BI is Burning Index. Its inputs are daily maximum and minimum temperature, daily precipitation, daily minimum and maximum relative humidity, daily windspeed, daily downwelling shortwave radiation in W/m^2, daily specific humidity in kg/kg, 100 hour fuel moisture, 1000 hour fuel moisture, and energy release component.
+
+The scale for burning index depends on which fuel model is used. 0 is low fire danger, and large values are higher fire danger. It is of interest partially because it takes into account the same variables as ERC, but also includes wind, which is of great interest in wildfire spread. 
 
 Like ERC, there are options for the fuel model inputs. It is closely related to ERC in many ways.
