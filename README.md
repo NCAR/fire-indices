@@ -9,7 +9,7 @@ Unit handling is available for any temperature, relative humidity, precipitation
 All main files (except SPI3) have built-in checks that ensure that the length of the time attribute in every file is the same, and that their start and end dates match within 24 hours.
 
 ## Running fire indexes
-The fire index functions can be run from the command line by using the <fire_index>\_main.ncl files. They include examples of how to run them, as well as some explaination regarding inputs. For some variables, such as the grid variable used in FM100, FM1000, ERC, and BI there is further explanation within the calc_<fire_index>.ncl files. 
+Each fire index can be run from the command line using the <fire index>_main.ncl scripts. Their purpose is mostly to read in input variables and set up the output files. These scripts call the calc_<fire index>.ncl functions. The main scripts include an example of how to run them in the comments at the top, as well as some explanation regarding inputs. For some variables, such as the grid variable used in FM100, FM1000, ERC, and BI there is further explanation within the calc_<fire_index>.ncl files. 
 
 ## SPI3
 SPI3 is the 3 month standard precipitation index. The only input into SPI3 is monthly precipitation in any units.
