@@ -21,7 +21,7 @@ The code uses a built in function for SPI in NCL, with the input set to 3. It ca
 ## KBDI
 KBDI is the Keetch-Byram Drought Index. Its inputs are maximum daily temperature and daily precipitation. The final calculations for KBDI require temperature in Fahrenheit and precipitation in inches.
 
-KBDI relies on the previous day's KBDI to formulate the current day's KBDI. It has a scale from 0 to 800, where 0 indicates saturated soil and 800 indicates severe drought. Since it does rely on the previous day, a spin-up period does exist up until the first major rainfall, usually at which point the scale resets to 0 and becomes independent from the initial value.
+KBDI relies on the previous day's KBDI to formulate the current day's KBDI. It has a scale from 0 to 800, where 0 indicates saturated soil and 800 indicates severe drought. 800 is the limit because KBDI only deals with up to 8 inches of precipitation. The value of 800 indicates that it would take 8 inches of precipitation for soil to reach saturation. Since it does rely on the previous day, a spin-up period does exist up until the first major rainfall, usually at which point the scale resets to 0 and becomes independent from the initial value.
 
 The code is based on calculations made in "A Drought Index for Fire Control" by John Keetch and George Byram in 1968. 
 
@@ -42,6 +42,8 @@ An intermediate step of CFWI relies on the previous day's calculation, so the ca
 ## FM100
 FM100 is percent moisture content for 100-hour timelag, or 100 hour Fuel Moisture. It takes inputs of daily maximum and minimum temperature, daily precipitation, and daily minimum and maximum relative humidity. 
 
+FM100 is part of the National Fire Danger Rating System, which categorizes dead fuel based on fuel diameter. Timelag can be defined as the approximate time it takes for the fuel to reach 2/3 of the way to equilibrium with the environment. 100-hour timelag fuel is roundwood that is 1 to 3 inches in diameter and describes the layer of dead fuel on the forest floor approximately 3/4 of an inch to four inches below the surface. FM100 uses a 24-hour boundary condition. 
+
 Typically, FM100 ranges between 0 and 30, where 30 is low fire danger and 0 is high fire danger. Note that this scale is inverse to most other fire indices, where the maximum value denotes high fire danger.
 
 Currently, it only serves as an input to ERC, but may be used as a separate index. Also note that in the NFDRS equations from 1985 that FM100 is referred to as MC100 (moisture content instead of fuel moisture).
@@ -49,12 +51,15 @@ Currently, it only serves as an input to ERC, but may be used as a separate inde
 ## FM1000
 FM1000 is percent moisture content for 1000-hour timelag, or 1000 hour Fuel Moisture. It takes inputs of daily maximum and minimum temperature, daily precipitation, and daily minimum and maximum relative humidity (the same as FM100).
 
-FM1000 ranges from 0 to 45, though in most of the US, it rarely reaches above 35. Like FM100, 0 is high fire danger and 45 is low fire danger. 
+FM1000, like FM100, is part of the National Fire Danger Rating System, which categorizes dead fuel based on fuel diameter. Timelag can be defined as the approximate time it takes for the fuel to reach 2/3 of the way to equilibrium with the environment.  1000-hour timelag fuel is roundwood that is 3 to 8 inches in diameter and describes the layer of dead fuel on the forest floor deeper than four inches below the surface. FM1000 uses a 7-day average boundary condition.
 
-Currently, it only serves as an input to ERC, but may be used as a separate index. Also like FM100, in the NFDRS 1985 equations paper, FM1000 is referred to as MC1000.
+FM1000 ranges from 0 to 45, though in most of the US, it rarely reaches above 35. Like FM100, 0 is high fire danger and 45 is low fire danger. 
+It serves as an input to ERC, but may be used as a separate index. Also like FM100, in the NFDRS 1985 equations paper, FM1000 is referred to as MC1000.
 
 ## ERC 
 ERC is the Energy Release Component. Its inputs are daily maximum and minimum temperature, daily precipitation, daily minimum and maximum relative humidity, daily downwelling shortwave radiation in W/m^2, daily specific humidity in kg/kg, 100 hour fuel moisture, and 1000 hour fuel moisture.
+
+ERC is a component in the National Fire Danger Rating System relating the available energy in BTU per unit area in square feet within the flaming front at the head of a fire. It includes fuel moisture values from all dead and live fuels that can contribute to potential fire intensity. It is a cumulative index. When the ERC value doubles, the potential heat release has doubled.
 
 There are many options surrounding the fuel model portion of the code. The NFDRS fuel models are letters A-L, N-U. An overview of their distributions in the US and descriptive names for each can be seen here: https://www.wfas.net/index.php/nfdrs-fuel-model-static-maps-44
 
@@ -67,6 +72,8 @@ The code is almost exclusively adapted from code from John Abatzoglou.
 ## BI
 BI is Burning Index. Its inputs are daily maximum and minimum temperature, daily precipitation, daily minimum and maximum relative humidity, daily windspeed, daily downwelling shortwave radiation in W/m^2, daily specific humidity in kg/kg, 100 hour fuel moisture, 1000 hour fuel moisture, and energy release component.
 
-The scale for burning index depends on which fuel model is used. 0 is low fire danger, and large values are higher fire danger. It is of interest partially because it takes into account the same variables as ERC, but also includes wind, which is of great interest in wildfire spread. 
+BI is an index in the National Fire Danger Rating System and describes the difficulty to control a fire. The higher the value of BI, the longer the flame length and the harder a fire is to contain. It is a combination of energy release component (ERC) and spread component (SC). This means it accounts for how much energy will be produced and for how fast it can spread. 
+
+The scale for burning index depends on which fuel model is used. 0 is low fire danger, and large values are higher fire danger, with values in the 60-80 range or higher suggesting containment will be difficult. It is of interest partially because it takes into account the same variables as ERC, but also includes wind, which is of great interest in wildfire spread. 
 
 Like ERC, there are options for the fuel model inputs. It is closely related to ERC in many ways.
