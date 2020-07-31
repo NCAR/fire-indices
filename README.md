@@ -4,12 +4,12 @@ Code for calculating various fire indices for a research project about simultane
 ## Overview
 Fire indices can show the current fire danger, the severity of drought in an area, and likelihood of spread. All the indices in this repository have been written in the NCAR Command Language (NCL). They use a variety of inputs. All of them use precipitation, many use temperature, while others also use solar radiation, wind speeds, and humidity. In combination, a variety of fire indices may be able to be used to pinpoint areas of extreme fire danger and severity, with focus on synchronous large wildfires across the contiguous United States. 
 
-Unit handling is available for any temperature, relative humidity, precipitation, and wind variables. Solar radiation variables must be in W/m2 and specific humidity must be in kg/kg. Details regarding unit handling can be found in calc_<fire index>.ncl files.
+Unit handling is available for any temperature, relative humidity, precipitation, and wind variables. Solar radiation variables must be in W/m2 and specific humidity must be in kg/kg. Details regarding unit handling can be found in calc\_\<fire index\>.ncl files.
 
 All main files (except SPI3) have built-in checks that ensure that the length of the time attribute in every file is the same, and that their start and end dates match within 24 hours.
 
 ## Running fire indexes
-Each fire index can be run from the command line using the <fire index>_main.ncl scripts. Their purpose is mostly to read in input variables and set up the output files. These scripts call the calc_<fire index>.ncl functions. The main scripts include an example of how to run them in the comments at the top, as well as some explanation regarding inputs. For some variables, such as the grid variable used in FM100, FM1000, ERC, and BI there is further explanation within the calc_<fire_index>.ncl files. 
+Each fire index can be run from the command line using the \<fire index\>\_main.ncl scripts. Their purpose is mostly to read in input variables and set up the output files. These scripts call the calc\_\<fire index\>.ncl functions. The main scripts include an example of how to run them in the comments at the top, as well as some explanation regarding inputs. For some variables, such as the grid variable used in FM100, FM1000, ERC, and BI there is further explanation within the calc_<fire_index>.ncl files. 
 
 ## SPI3
 SPI3 is the 3 month standard precipitation index. The only input into SPI3 is monthly precipitation in any units.
