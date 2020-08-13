@@ -113,7 +113,10 @@ lon = r_tempmax->lon
 units=(/0, 0, 0, 0, 0/)
 ;units=-1
 
-mc1000 = calc_fm1000(maxtemp, mintemp, pr, maxhum, minhum, time, lat, lon, grid, units)
+option = False
+;option@suppressWarning = True
+
+mc1000 = calc_fm1000(maxtemp, mintemp, pr, maxhum, minhum, time, lat, lon, grid, units, option)
 
 w_fm1000->fm1000 = mc1000
 

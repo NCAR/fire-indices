@@ -72,7 +72,10 @@ calendar = read_precip->time@calendar
 ;units = (/ 0, 0 /)	;(/ tmax - degC, prec - mm/day /)
 units = -1	;-1 corresponds to metadata
 
-kbdi = calc_kbdi(daily_precip, tmax, calendar, units)
+option = False
+;option@suppressWarning = True
+
+kbdi = calc_kbdi(daily_precip, tmax, calendar, units, option)
 
 KBDI_out->kbdi = kbdi
 

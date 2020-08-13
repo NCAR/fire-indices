@@ -110,10 +110,13 @@ huss = r_huss->huss
 ;elev = r_elev->orog
 elev = 500.
 ;grid = "NAM-22i"
-;units=-1
-units=(/0,0,0,0,0/)
+units=-1
+;units=(/0,0,0,0,0/)
 
-erc = calc_erc(maxtC, mintC, prec, maxrh, minrh, rad, huss, fm100, fm1000, time, lat, lon, grid, fuel_model, units)
+option = False
+;option@suppressWarning = True
+
+erc = calc_erc(maxtC, mintC, prec, maxrh, minrh, rad, huss, fm100, fm1000, time, lat, lon, grid, fuel_model, units, option)
 
 w_erc->erc = erc	;transfer erc data into file
 

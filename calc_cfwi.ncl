@@ -43,8 +43,9 @@ load "convert_prec.ncl"
 load "convert_humid.ncl"
 load "convert_wind.ncl"
 load "unit_handling.ncl"
+load "check_time_length.ncl"
 
-function calc_cfwi(tmax, prec, hurs, spd, time, lat, lon, iounits)
+function calc_cfwi(tmax, prec, hurs, spd, time, lat, lon, iounits, opt)
 local fd, B, cfwi, ffmc, dmc, dc, Lf, latlen, lonlen, ndays, cal, cal1, day_year, Le, Le1, Le2, tmaxdmc, tmaxdc, m, ffmc, dmc, dc, isi, bui, fd, B, varatts, size
 begin
 
@@ -99,9 +100,9 @@ cfwi = 0.0
 
 latlen = dimsizes(lat)
 lonlen = dimsizes(lon)
-
-
 ndays = dimsizes(time)
+
+check_time_length(ndays, 365, opt)
 
 do i = 0, ndays-1
 

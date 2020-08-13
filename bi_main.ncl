@@ -121,7 +121,10 @@ elev = 500.
 units = -1	;-1 corresponds to metadata
 ;units=(/-1,-1,-1,-1,-1,-1/)	;(/tmax, tmin, prec, rhmax, rhmin, spd/) input units. all -1 corresponds to metadata
 
-bi = calc_bi(maxtC, mintC, prec, maxrh, minrh, spd, rad, huss, fm100, fm1000, erc, time, lat, lon, grid, fuel_model, units)
+option = False
+;option@suppressWarning = True
+
+bi = calc_bi(maxtC, mintC, prec, maxrh, minrh, spd, rad, huss, fm100, fm1000, erc, time, lat, lon, grid, fuel_model, units, option)
 
 w_bi->bi = bi	;transfer burning index data into file
 

@@ -129,9 +129,11 @@ lon = r_tempmax->lon
 ;units=(/-1, -1, 0, -1, 0/)
 units=-1
 
+option = False
+;option@suppressWarning = True
 ;b = r_z3->Z3
 
-fm100 = calc_fm100(maxtemp, mintemp, pr, maxhum, minhum, time, lat, lon, grid, units)
+fm100 = calc_fm100(maxtemp, mintemp, pr, maxhum, minhum, time, lat, lon, grid, units, option)
 
 w_fm100->fm100 = fm100	;write fm100 data to file
 

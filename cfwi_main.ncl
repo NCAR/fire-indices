@@ -101,7 +101,10 @@ lon = r_prec->lon
 ;units=(/-1, -1, -1, -1/)      ;(/ temp, prec, hum, wind/) (all -1 indicates units taken from metadata)
 units= -1	; -1 corresponds to metadata units
 
-cfwi = calc_cfwi(temp, pr, humid, windsp, time, lat, lon, units)
+option = False
+;option@suppressWarning = True
+
+cfwi = calc_cfwi(temp, pr, humid, windsp, time, lat, lon, units, option)
 
 w_cfwi->cfwi = cfwi
 

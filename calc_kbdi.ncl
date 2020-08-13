@@ -5,6 +5,7 @@
 load "convert_temp.ncl"
 load "convert_prec.ncl"
 load "unit_handling.ncl"
+load "check_time_length.ncl"
 
 ; daily data must be fed into the program
 
@@ -30,7 +31,7 @@ load "unit_handling.ncl"
 ; precip_acc is the accumulated precipitation over contiguous days
 
 
-function calc_kbdi ( prec, tmax, calendar, iounits )
+function calc_kbdi ( prec, tmax, calendar, iounits, opt )
 local kbdi, precip_acc, Q, total_precip, ndaysyear, ndays, nyears, annual_pr, dQ, precip_adj
 
 begin
@@ -89,6 +90,9 @@ end if
 
 ndays = dimsizes(prec(:,0,0))             ; extracts number of days in a daily dataset
 nyears = ndays/ndaysyear
+
+check_time_length(ndays, ndaysyear * 30.0, opt)
+
 annual_pr = total_precip / nyears
 
 ndays = dimsizes(prec(:,0,0))

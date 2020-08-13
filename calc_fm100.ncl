@@ -13,6 +13,7 @@ load "calc_daylight_manual.ncl"
 load "calc_pduration.ncl"
 load "calc_point_pduration.ncl"
 load "calc_paper_pduration.ncl"
+load "check_time_length.ncl"
 
 /;
         tmax: daily maximum temperature
@@ -51,7 +52,7 @@ load "calc_paper_pduration.ncl"
 
 ;/
 
-function calc_fm100(tmax, tmin, prec, rhmax, rhmin, time, lat, lon, grid, iounits)
+function calc_fm100(tmax, tmin, prec, rhmax, rhmin, time, lat, lon, grid, iounits, opt)
 local climcl, fm100, yfm, emcmax, emcmin, day_year, latlen, lonlen, pptdur, fr100, emcbar, ndays, daylit, bndryh1, bndryh, varatts
 begin
 
@@ -120,6 +121,8 @@ begin
 	emcbar = emcmin(0, :, :)
 
 	ndays = dimsizes(time)
+	check_time_length(ndays, 365, opt)
+
 	do i = 0, ndays-1
 
 		daylit = dble2flt(calc_daylight_manual(day_year(i), lat, lonlen))

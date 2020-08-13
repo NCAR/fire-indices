@@ -50,9 +50,9 @@ load "calc_daylight_manual.ncl"
 load "calc_pduration.ncl"
 load "calc_point_pduration.ncl"
 load "calc_paper_pduration.ncl"
+load "check_time_length.ncl"
 
-
-function calc_fm1000(tmax, tmin, prec, rhmax, rhmin, time, lat, lon, grid, iounits)
+function calc_fm1000(tmax, tmin, prec, rhmax, rhmin, time, lat, lon, grid, iounits, opt)
 local day_year, latlen, lonlen, emcmin, emcmax, climat, pptdur, startup, temp, bndryt, mc1000_r, divsev, tempbnd, bdybar, mc1000, ndays, fr1000, daylit, emcbar, varatts
 begin
 
@@ -125,6 +125,8 @@ begin
 	mc1000 = prec
 
 	ndays = dimsizes(time)
+	check_time_length(ndays, 365, opt)
+
 	fr1000 = 1 - 0.82 * exp(-0.168)
 
 	do i = 0, ndays-1
