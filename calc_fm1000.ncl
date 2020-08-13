@@ -110,7 +110,7 @@ begin
 	emcmax = calc_emc(tmin, rhmax)
 
 	climat = 3.     ;possible refinement: create a file with each gridcell assigned a class according to fuel moisture and such, as seen on the cover of The National Fire Danger Rating System: basic equations (1985)
-	pptdur = calc_pduration(grid, prec, latlen, lonlen)
+	pptdur = calc_pduration(grid, prec, lat, lon)
 
 	;spin-up conditions
 	startup = 10. + 5.0 * climat

@@ -114,7 +114,7 @@ begin
 
 	latlen = dimsizes(lat)
 	lonlen = dimsizes(lon)
-	pptdur = calc_pduration(grid, prec, latlen, lonlen)
+	pptdur = calc_pduration(grid, prec, lat, lon)
 
 	fr100 = 1.0 - 0.87 * exp(-0.24)
 
