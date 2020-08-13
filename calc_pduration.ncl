@@ -9,11 +9,13 @@
 
 load "pjolly.ncl"
 
-function calc_pduration(grid, ppt, latlen, lonlen)    ;this function uses the methods presented by MATLAB code and runs over all of CONUS
+function calc_pduration(grid, ppt, lat, lon)    ;this function uses the methods presented by MATLAB code and runs over all of CONUS
 local z3, timelen, z3_1, pdur
 begin
 
-	z3 = pjolly(grid)
+	latlen = dimsizes(lat)
+	lonlen = dimsizes(lon)
+	z3 = pjolly(grid, lat, lon)
 
 	timelen = dimsizes(ppt(:, 0,0))
 	z3_1 = conform_dims((/timelen, latlen, lonlen/), z3, (/1,2/))

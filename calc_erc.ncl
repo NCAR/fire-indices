@@ -23,8 +23,9 @@ load "calc_mcherb.ncl"
 load "calc_mcwood.ncl"
 load "calc_vegstage.ncl"
 load "calc_just_erc_1fuelmod.ncl"
-load "calc_just_erc_hybrid.ncl"
-load "calc_just_erc_nfdrs.ncl"
+load "calc_just_erc_fuelmap.ncl"
+load "check_time_length.ncl"
+;load "extract_lat_lon.ncl"
 
 /;
         tmax: daily maximum temperature
@@ -69,7 +70,7 @@ load "calc_just_erc_nfdrs.ncl"
 
 ;/
 
-function calc_erc(tmax, tmin, prec, rhmax, rhmin, rsds, huss, fm100, fm1000, time, lat, lon, grid, fuel_mod, iounits)
+function calc_erc(tmax, tmin, prec, rhmax, rhmin, rsds, huss, fm100, fm1000, time, lat, lon, grid, fuel_mod, iounits, opt)
 local units_list, b, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
 
 begin
@@ -132,7 +133,7 @@ begin
 
 	annperen = "perennial"     ; in MATLAB code, 1 == annual, 2 == perennial
 	climat = 3      ;climat is NFDRS Climate class
-	pptdur = calc_pduration(grid, prec, latlen, lonlen)        ; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
+	pptdur = calc_pduration(grid, prec, lat, lon)        ; if not using z3 as an input, use calc_paper_pduration.
 
 	hveg = conform_dims((/latlen, lonlen/), "pregreen", -1)                ; pregreen, greenup, green, transition, cured, frozen
 	greendays = prec(0, :, :)
@@ -178,8 +179,7 @@ begin
 	erc = prec      ;establishes lat, lon, etc.
 	erc = 0.0
 	ndays = dimsizes(time)
-
-	printVarSummary(erc)
+	check_time_length(ndays, 365, opt)
 
 	do i=0, ndays - 1
 
@@ -196,13 +196,10 @@ begin
 
 	        hveg = calc_vegstage(colddays, maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
 	        
-		if((fuel_mod .eq. "nfdrs") .or. (fuel_mod .eq. "NFDRS"))
-			erc(i, :, :) = (/calc_just_erc_nfdrs(mcherb, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, fuel_mod)/)
-		else if((fuel_mod .eq. "hybrid") .or. (fuel_mod .eq. "HYBRID"))
-			erc(i, :, :) = (/calc_just_erc_hybrid(mcherb, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, fuel_mod)/)
+		if((fuel_mod .eq. "laf") .or. (fuel_mod .eq. "LAF") .or. (fuel_mod .eq. "hybrid") .or. (fuel_mod .eq. "HYBRID"))
+			erc(i, :, :) = (/calc_just_erc_fuelmap(mcherb, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, lat, lon, fuel_mod, grid)/)
 		else
 			erc(i, :, :) = (/calc_just_erc_1fuelmod(mcherb, fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), fm1000(i, :, :), mcwood, fuel_mod)/)
-		end if
 		end if
 
 	        colddays = where(hveg .eq. "curing" .and. mint(i, :, :) .lt. 32., colddays + 1, colddays)
