@@ -48,7 +48,7 @@ r_spd = addfile(spdfile, "r")
 r_erc = addfile(ercfile, "r")
 r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
 ;r_elev = addfile(elev_in, "r")
-
+/;
 ; if fm100 and fm1000 have been calculated, temperature, precipitation, and humidity must already match in every dimension. Only need to check time for specific humidity, solar radiation compared to fm100
 timeSH = r_huss->time
 timeR = r_rad->time
@@ -67,7 +67,7 @@ if(check .lt. 2) then           ;procedure clip_time finds the largest minimum a
 end if
 
 print("Time limits match on all variables")
-
+;/
 
 system("rm -f "+output)
 w_bi = addfile(output, "c") ;create new file to store erc

@@ -23,8 +23,9 @@ load "calc_x1000.ncl"
 load "calc_mcherb.ncl"
 load "calc_mcwood.ncl"
 load "calc_vegstage.ncl"
-load "calc_just_bi.ncl"
-
+load "calc_just_bi_1fuelmod.ncl"
+load "calc_just_bi_fuelmap.ncl"
+load "check_time_length.ncl"
 
 /;
         tmax: daily maximum temperature
@@ -74,10 +75,11 @@ load "calc_just_bi.ncl"
 
 ;/
 
-function calc_bi(tmax, tmin, prec, rhmax, rhmin, spd, rsds, huss, fm100, fm1000, erc, time, lat, lon, grid, fuel_mod, iounits)
+function calc_bi(tmax, tmin, prec, rhmax, rhmin, spd, rsds, huss, fm100, fm1000, erc, time, lat, lon, grid, fuel_mod, iounits, opt)
 local b, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts,unit_list
 
 begin
+
 
      	;unit conversions for precip, temperature, and humidity
         size = dimsizes(iounits)
@@ -96,7 +98,6 @@ begin
         else if(size .eq. 6) then
                 unit_list = unit_handling((/"tmax", "tmin", "prec", "rhmax", "rhmin", "spd"/), iounits)
 
-		;print(units)
                 if(unit_list(0) .ne. "metadata") then
                         tmax@units = units(0)
                 end if
@@ -141,7 +142,7 @@ begin
 
 	annperen = "annual"     ; in MATLAB code, 1 == annual, 2 == perennial
 	climat = 3      ;climat is NFDRS Climate class
-	pptdur = calc_pduration(grid, prec, latlen, lonlen)        ; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
+	pptdur = calc_pduration(grid, prec, lat, lon)        ; if not using z3 as an input, use calc_paper_pduration. if only operating on 1 point, use calc_point_pduration.
 
 	hveg = conform_dims((/latlen, lonlen/), "pregreen", -1)                ; pregreen, greenup, green, transition, cured, frozen
 	greendays = prec(0, :, :)
@@ -192,6 +193,7 @@ begin
 	bi = 0.0
 	ndays = dimsizes(time)
 
+	check_time_length(ndays, 365, opt)
 	do i=0, ndays - 1
 
 	        year = tointeger(floor(i / 365.2425))
@@ -206,7 +208,12 @@ begin
 	        mcwood = calc_mcwood(pregrn, mcwodi, fm1000(i, :, :), climat, hveg, gren, ymwood)
 
 	        hveg = calc_vegstage(colddays, maxt(i, :, :), mint(i, :, :), day_year(i), j_green, gren, mcherb, hveg)
-	        bi(i, :, :) = (/calc_just_bi(fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), erc(i, :, :), mcherb, mcwood, spd(i, :, :), fuel_mod, climat)/)
+
+		if((fuel_mod .eq. "laf") .or. (fuel_mod .eq. "LAF") .or. (fuel_mod .eq. "hybrid") .or. (fuel_mod .eq. "HYBRID")) then
+			bi(i, :, :) = (/totype(calc_just_bi_fuelmap(fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), erc(i, :, :), mcherb, mcwood, spd(i, :, :), lat, lon, fuel_mod, climat), typeof(prec))/)
+		else
+			bi(i, :, :) = (/calc_just_bi_1fuelmod(fm1(i, :, :), fm10(i, :, :), fm100(i, :, :), erc(i, :, :), mcherb, mcwood, spd(i, :, :), fuel_mod, climat)/)
+		end if
 
 	        colddays = where(hveg .eq. "curing" .and. mint(i, :, :) .lt. 32., colddays + 1, colddays)
 	        colddays = where(hveg .eq. "frozen", 0, colddays)
