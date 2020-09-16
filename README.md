@@ -16,7 +16,7 @@ SPI3 is the 3 month standard precipitation index. The only input into SPI3 is mo
 
 3 month SPI is a relatively short time interval, and is indicative of soil moisture. It is quite simple and does not account for many variables present in other indices. 
 
-The code uses a built in function for SPI in NCL, with the input set to 3. It can easily be modified to time scales other than 3 months. Generally, in order to be effective, a series of 30 to 50 years should be fed in, so as to get more accurate results. Typically, the scale ranges from -4 to 4, where -4 is abnormally low precipitation and 4 indicates abnormally high precipitation. Some regions may have less extreme scales. Technically, there is no limit to how wide the scale can be.
+The code uses a built in function for SPI in NCL, with the input set to 3. It does not have a corresponding calc\_\<fire index\>.ncl function. It can easily be modified to time scales other than 3 months. Generally, in order to be effective, a series of 30 to 50 years should be fed in, so as to get more accurate results. Typically, the scale ranges from -4 to 4, where -4 is abnormally low precipitation and 4 indicates abnormally high precipitation. Some regions may have less extreme scales. Technically, there is no limit to how wide the scale can be.
 
 ## KBDI
 KBDI is the Keetch-Byram Drought Index. Its inputs are maximum daily temperature and daily precipitation. The final calculations for KBDI require temperature in Fahrenheit and precipitation in inches.
@@ -63,7 +63,7 @@ ERC is a component in the National Fire Danger Rating System relating the availa
 
 There are many options surrounding the fuel model portion of the code. The NFDRS fuel models are letters A-L, N-U. An overview of their distributions in the US and descriptive names for each can be seen here: https://www.wfas.net/index.php/nfdrs-fuel-model-static-maps-44
 
-Work surrounding adapting the map to calculated ERC across large areas of the United States is currently in progress. 
+Work surrounding adapting the map to calculated ERC across large areas of the United States is currently in progress. Limited functionality has been built into the current code that can use the fuel model map, with the option to use custom files for different grids and locations.
 
 Like CFWI, several intermediate steps rely on the previous day's calculations. This index is by far the most computationally complex and the most time consuming to run. Previous work suggests that it is very accurate, however. ERC calculated using fuel model G (which is frequently used) typically ranges from 0 to 80, where 0 is low fire danger and 80 is severe fire danger. Drier, hotter regions may get higher than 80, though, as it is an open ended scale.
 
