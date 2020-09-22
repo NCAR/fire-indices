@@ -7,18 +7,38 @@ if(unit .ne. wind@units) then
 	if(unit .eq. "m/s" .or. unit .eq. "m s-1") then
 		if(wind@units .eq. "mph") then
 			wind = wind / 2.23694
+		else if(wind@units .eq. "kts") then
+			kts to m/s
 		end if
+		end if
+
 		wind@units = unit
 	end if
 	
 	if (unit .eq. "mph") then
 		if(wind@units .eq. "m/s" .or. wind@units .eq. "m s-1") then
 			wind = wind * 2.23694
+		else if(wind@units .eq. "kts") then
+			kts to mph
 		end if
+		end if
+
 		wind@units = unit
 	end if
 
-	if((unit .ne. "mph") .and. (unit .ne. "m/s") .and. (unit .ne. "m s-1")) then
+	if(unit .eq. "kts") then
+		if(wind@units .eq. "m/s" .or. wind@units .eq. "m s-1") then
+			m/s to kts
+		else if(wind@units .eq. "mph") then 
+			mph to kts
+
+		end if
+		end if
+
+		wind@units = unit
+	end if
+
+	if((unit .ne. "mph") .and. (unit .ne. "m/s") .and. (unit .ne. "m s-1") .and. (unit .ne. "kts") then
 		print("options for input unit are mph, m/s, and m s-1")
 	end if
 end if
