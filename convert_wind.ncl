@@ -8,7 +8,7 @@ if(unit .ne. wind@units) then
 		if(wind@units .eq. "mph") then
 			wind = wind / 2.23694
 		else if(wind@units .eq. "kts") then
-			kts to m/s
+			wind = wind / 1.94386
 		end if
 		end if
 
@@ -19,7 +19,7 @@ if(unit .ne. wind@units) then
 		if(wind@units .eq. "m/s" .or. wind@units .eq. "m s-1") then
 			wind = wind * 2.23694
 		else if(wind@units .eq. "kts") then
-			kts to mph
+			wind = wind * 1.15078
 		end if
 		end if
 
@@ -28,10 +28,9 @@ if(unit .ne. wind@units) then
 
 	if(unit .eq. "kts") then
 		if(wind@units .eq. "m/s" .or. wind@units .eq. "m s-1") then
-			m/s to kts
+			wind = wind * 1.94386
 		else if(wind@units .eq. "mph") then 
-			mph to kts
-
+			wind = wind / 1.15078
 		end if
 		end if
 
