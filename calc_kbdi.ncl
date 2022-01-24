@@ -110,7 +110,7 @@ do i=0, ndays-1
 	precip_acc = precip_acc < 8.0         ; soil is saturated at 8 inches of precip_acc
 
 	;dQ is the incremental change in KBDI
-	dQ = where(maxtemp .ge. 50.0, (800. - Q) * (0.968 * exp(0.0486 * maxtemp) - 0.83) / (1 + 10.88 * exp(-0.0441 * annual_pr)) * 0.001, 0)
+	dQ = where(maxtemp .ge. 50.0, (800. - Q) * (0.968 * exp(0.0486 * maxtemp) - 8.3) / (1 + 10.88 * exp(-0.0441 * annual_pr)) * 0.001, 0)
 	;dQ is adjusted to 0 when maxtemp < 50 deg F, otherwise is calculated according to KBDI original paper. Adjustment taken from Liu et al.
 
 	Q = Q + dQ - (precip_adj * 100) ;drought index is reduced 1 point for every .01 inches of adjusted rainfall
