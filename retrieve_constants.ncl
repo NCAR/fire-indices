@@ -78,7 +78,7 @@ begin
 	end if
 
 	if( fuel_mod .eq. -1) then
-		print("Valid fuel models are A-U, a-u except for M or m")
+		print("You requested fuel model " + fuel_mod_letter + ", which is not supported. Valid fuel models are A-U, a-u except for M or m")
 		exit()
 	end if
 
