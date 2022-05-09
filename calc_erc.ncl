@@ -70,8 +70,8 @@ load "check_time_length.ncl"
 
 ;/
 
-function calc_erc(tmax, tmin, prec, rhmax, rhmin, rsds, huss, fm100, fm1000, time, lat, lon, grid, fuel_mod, iounits, opt)
-local units_list, b, elev, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
+function calc_erc(tmax, tmin, prec, rhmax, rhmin, rsds, huss, fm100, fm1000, elev, time, lat, lon, grid, fuel_mod, iounits, opt)
+local units_list, b, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
 
 begin
 
@@ -120,15 +120,15 @@ begin
 	end if
 
 
-	elev = 500.
+	;elev = 500.
 
 	latlen = dimsizes(lat)
 	lonlen = dimsizes(lon)
 	timelen = dimsizes(time)	
 
 	day_year = calc_julian_day(time)
-	tempsolar = calc_potential_solar(lat,day_year, elev)
-	maxsolar = conform_dims((/timelen, latlen, lonlen/), tempsolar, (/0,1/))
+	maxsolar = calc_potential_solar(lat, lon, day_year, elev)
+	;maxsolar = conform_dims((/timelen, latlen, lonlen/), tempsolar, (/0,1/))
 	sow = calc_sow_daily(rsds, prec, maxsolar)
 
 	annperen = "perennial"     ; in MATLAB code, 1 == annual, 2 == perennial
@@ -146,7 +146,10 @@ begin
 
 	rh1 = rhmin + 2.
 
-	vpd = calc_vpd(tmax, tmin, huss, rh1, elev)           ;the vpd function requires Celsius
+	elevsqueeze = rm_single_dims(elev)
+	elev1 = conform_dims((/timelen, latlen, lonlen/), elevsqueeze, (/1,2/))
+
+	vpd = calc_vpd(tmax, tmin, huss, rh1, elev1)           ;the vpd function requires Celsius
 	
 	maxt = tmax * 1.8 + 32.	;convert Celsius to Fahrenheit for rest of calculations
 	mint = tmin * 1.8 + 32.

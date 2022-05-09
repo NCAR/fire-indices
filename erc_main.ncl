@@ -15,6 +15,7 @@ The following variables should be specified as command-line arguments
 	rsdsfile (daily downwelling shortwave radiation with units W m-2)
 	fm100file (daily 100-hour timelag fuel moisture)
 	fm1000file (daily 1000-hour timelag fuel moisture)
+	fuel_model (laf or any various letter models)
         grid (NAM-22i, NAM-44i, or custom file path)
         output (file to write out to)
 
@@ -33,6 +34,8 @@ load "clip_time.ncl"
 
 begin
 
+print(output)
+
 r_pr = addfile(precfile, "r")
 r_rad = addfile(rsdsfile, "r")
 r_rhmax = addfile(rhmaxfile, "r")
@@ -42,7 +45,8 @@ r_tmin = addfile(tminfile, "r")
 r_fm1000 = addfile(fm1000file, "r")
 r_fm100 = addfile(fm100file, "r")
 r_huss = addfile(hussfile, "r")
-r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
+r_elev = addfile(orogfile, "r")
+;r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
 
 ; if fm100 and fm1000 have been calculated, temperature, precipitation, and humidity must already match in every dimension. Only need to check time for specific humidity, solar radiation compared to fm100
 timeSH = r_huss->time
@@ -107,8 +111,9 @@ fm1000 = r_fm1000->fm1000       ;calculated in a different file
 fm100 = r_fm100->fm100
 huss = r_huss->huss
 ;b = r_z3->Z3
-;elev = r_elev->orog
-elev = 500.
+;elev = r_elev->elevation
+elev = r_elev->orog
+;elev = 500.
 ;grid = "NAM-22i"
 units=-1
 ;units=(/0,0,0,0,0/)
@@ -116,7 +121,7 @@ units=-1
 option = False
 ;option@suppressWarning = True
 
-erc = calc_erc(maxtC, mintC, prec, maxrh, minrh, rad, huss, fm100, fm1000, time, lat, lon, grid, fuel_model, units, option)
+erc = calc_erc(maxtC, mintC, prec, maxrh, minrh, rad, huss, fm100, fm1000, elev, time, lat, lon, grid, fuel_model, units, option)
 
 w_erc->erc = erc	;transfer erc data into file
 

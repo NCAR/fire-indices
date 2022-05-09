@@ -47,7 +47,7 @@ r_huss = addfile(hussfile, "r")
 r_spd = addfile(spdfile, "r")
 r_erc = addfile(ercfile, "r")
 r_const = addfile("erc_constants.nc", "r")	; must be in right directory!!
-;r_elev = addfile(elev_in, "r")
+r_elev = addfile(orogfile, "r")
 /;
 ; if fm100 and fm1000 have been calculated, temperature, precipitation, and humidity must already match in every dimension. Only need to check time for specific humidity, solar radiation compared to fm100
 timeSH = r_huss->time
@@ -111,10 +111,10 @@ fm1000 = r_fm1000->fm1000       ;calculated in a different file
 fm100 = r_fm100->fm100
 huss = r_huss->huss
 erc = r_erc->erc
-spd = r_spd->spd
 ;spd = r_spd->sfcWind
-;elev = r_elev->orog
-elev = 500.
+spd = r_spd->spd
+elev = r_elev->orog
+;elev = 500.
 ;grid = "NAM-22i"
 
 ;fuel_model = "G"
@@ -124,7 +124,7 @@ units = -1	;-1 corresponds to metadata
 option = False
 ;option@suppressWarning = True
 
-bi = calc_bi(maxtC, mintC, prec, maxrh, minrh, spd, rad, huss, fm100, fm1000, erc, time, lat, lon, grid, fuel_model, units, option)
+bi = calc_bi(maxtC, mintC, prec, maxrh, minrh, spd, rad, huss, elev, fm100, fm1000, erc, time, lat, lon, grid, fuel_model, units, option)
 
 w_bi->bi = bi	;transfer burning index data into file
 
