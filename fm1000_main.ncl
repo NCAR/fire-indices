@@ -110,8 +110,8 @@ lon = r_tempmax->lon
 
 ;b = r_z3->Z3
 
-units=(/0, 0, 0, 0, 0/)
-;units=-1
+;units=(/0, 0, 0, 0, 0/)
+units=-1
 
 option = False
 ;option@suppressWarning = True
@@ -119,6 +119,6 @@ option = False
 mc1000 = calc_fm1000(maxtemp, mintemp, pr, maxhum, minhum, time, lat, lon, grid, units, option)
 
 w_fm1000->fm1000 = mc1000
-
+print("wrote out to " + output)
 end
 

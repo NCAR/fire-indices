@@ -136,7 +136,7 @@ option = False
 fm100 = calc_fm100(maxtemp, mintemp, pr, maxhum, minhum, time, lat, lon, grid, units, option)
 
 w_fm100->fm100 = fm100	;write fm100 data to file
-
+print("wrote out to " + output)
 end
 
 
