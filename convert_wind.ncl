@@ -37,7 +37,7 @@ if(unit .ne. wind@units) then
 		wind@units = unit
 	end if
 
-	if((unit .ne. "mph") .and. (unit .ne. "m/s") .and. (unit .ne. "m s-1") .and. (unit .ne. "kts") then
+	if((unit .ne. "mph") .and. (unit .ne. "m/s") .and. (unit .ne. "m s-1") .and. (unit .ne. "kts")) then
 		print("options for input unit are mph, m/s, and m s-1")
 	end if
 end if

@@ -82,7 +82,7 @@ do i = 0, dimsizes(var_names)-1
 end do
 
 pr = r_prec->prec
-humid = r_humid->hurs
+humid = r_humid->rhmin		;this is a new adjustment-- rhmin should be used for hurs, as to match the noon temperature
 
 ;rhmax = r_rhmax->rhmax		;when hurs (average humidity) is not available, load rhmax and rhmin, and then calculate the simple average
 ;rhmin = r_rhmin->rhmin
@@ -105,6 +105,7 @@ option = False
 ;option@suppressWarning = True
 
 cfwi = calc_cfwi(temp, pr, humid, windsp, time, lat, lon, units, option)
+;cfwi = calc_cfwi_debug(temp, pr, humid, windsp, time, lat, lon, units, option)
 
 w_cfwi->cfwi = cfwi
 

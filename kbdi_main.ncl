@@ -46,7 +46,7 @@ filedimdef(KBDI_out, "time", -1, True)	;makes time dimension unlimited
 ; copy / set global attributes
 att_names = getvaratts(read_precip)
 do i = 0, dimsizes(att_names)-1				;transfer global attributes of precip onto KBDI
-	KBDI_out@$att_names(i)$ = read_precip@$att_names$
+	KBDI_out@$att_names(i)$ = read_precip@$att_names(i)$
 end do
 
 history = "Created " + systemfunc("date") + " by "+systemfunc("whoami")+"@"+systemfunc("hostname")+" using NCL scripts check_time.ncl, clip_time.ncl, concert_prec.ncl, concert_temp.ncl, calc_kbdi.ncl, and kbdi_main.ncl from source files "+precfile+" and "+tmaxfile

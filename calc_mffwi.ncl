@@ -47,6 +47,7 @@ if(size .eq. 1) then
 	else
                 print("The iounits value "+ iounits +" is not recognized. To indicate that all input units should be taken from metadata, input the value -1. Otherwise, indicate units according to documentation in a vector of (/tmax, hurs, spd/).")
 	end if
+end if
 if(size .gt. 1) then
         units = unit_handling((/"tmax", "hurs", "spd"/), iounits)
 

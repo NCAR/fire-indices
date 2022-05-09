@@ -79,6 +79,7 @@ do i = 0, dimsizes(var_names)-1		;read out
         end if
 end do
 
+;wind = r_wind->sfcWind
 wind = r_wind->spd
 hum = r_humid->hurs			; relative humidity
 ;rhmin = r_rhmin->rhmin
@@ -86,7 +87,7 @@ hum = r_humid->hurs			; relative humidity
 ;hum = (rhmax + rhmin) / 2.0		; calculate average of rhmax and rhmin
 ;hum@units = rhmax@units
 temp = r_temp->tmax			; assume that the index uses  maximum temperature of the day. Not specified in any paper
-kbdi = r_kbdi->KBDI			; calculate KBDI before calculating mFFWI
+kbdi = r_kbdi->kbdi			; calculate KBDI before calculating mFFWI
 
 ;units = (/0, 0, -1/)	;(/ temp - degC, hum - %, wind - m/s /)
 units = -1	; -1 corresponds to metadata
