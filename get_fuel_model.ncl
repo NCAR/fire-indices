@@ -13,12 +13,20 @@ begin
 			print("your option is not supported. Valid options at this time are laf and hybrid")
 		end if
 		end if
+	else if(grid .eq. "NAM-44i") then
+		if(option .eq. "laf") then
+			r_constant= addfile("nfdrs_NAM-44i_laf_fuelmods.nc", "r")
+		else
+			print("your option (" + option + ") is not supported. Valid options for grid NAM-44i are: laf")
+		end if
+
 	else
 		if(fileexists(option)) then
 			r_constant = addfile(option, "r")
 		else
 			print("No file matching that name was found. Please check the spelling if you have input a customized file, otherwise see $NCARG_ROOT/lib/ncarg/nclscripts/csm/data/nfdrsfuel_geog.nc to modify it for your grid.")
 		end if
+	end if
 	end if
 
 	return(r_constant)
