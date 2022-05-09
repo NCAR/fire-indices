@@ -77,3 +77,6 @@ BI is an index in the National Fire Danger Rating System and describes the diffi
 The scale for burning index depends on which fuel model is used. 0 is low fire danger, and large values are higher fire danger, with values in the 60-80 range or higher suggesting containment will be difficult. It is of interest partially because it takes into account the same variables as ERC, but also includes wind, which is of great interest in wildfire spread. 
 
 Like ERC, there are options for the fuel model inputs. It is closely related to ERC in many ways.
+
+## SUPPORT
+This repository is supported by NSF Growing Convergence Project 2019762.
