@@ -121,6 +121,8 @@ do i=0, ndays-1
 	kbdi(i, :, :) = Q
 end do
 
+print("WARNING: This code has been modified as of 1/24/2022 to reflect a correction of a typo in the original 1968 paper where in the calculation of dQ, the last part of the numerator is set to 8.3 instead of .83.")
+
 delete_VarAtts(kbdi, -1)   ; get rid of superfluous attributes
 kbdi@long_name = "Keetch-Byram Drought Index"
 varatts = (/"units", "missing_value", "_FillValue"/)
