@@ -33,9 +33,8 @@ The modified Fosberg index has a stronger correlation to area burned than the or
 Each calculation is independent of the previous day. Additionally, the code expects KBDI as an input, so KBDI calculations should always be completed before running mFFWI.
 
 ## CFWI
-CFWI is the Canadian Fire Weather Index. Its inputs are daily surface windspeed, daily maximum temperature, daily relative humidity, and daily precipitation. Some datasets do not have average daily humidity, in which case use the inputs of daily max and min humidities, averaged together. The code can read in either average humidity or daily max and min, with the max and min version currently commented out.
+CFWI is the Canadian Fire Weather Index. Its inputs are daily surface windspeed, daily maximum temperature, daily minimum relative humidity, and daily precipitation. Alternatively, daily average temperature and humidity could be used if maximum temperature and minimum humidity are not available.
 
-CFWI usually operates in a smaller range than other fire indices. Typically, 0-5 is considered low fire danger, 5-10 is moderate, 10-20 is high, 20-30 is very high, and anything greater than 30 is considered extreme.
 
 An intermediate step of CFWI relies on the previous day's calculation, so the calculations are done in a loop. Like mFFWI, this index is of interest because it uses windspeed.
 
