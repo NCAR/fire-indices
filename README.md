@@ -1,6 +1,10 @@
 # fire-indices
 Code for calculating various fire indices for a research project about simultaneous large fires
 
+**WARNING**
+
+ERC and BI are currently being overhauled and currently contain several typos that range from negligible to very noticeable changes in results. This message will be removed as soon as the overhaul is complete
+
 ## Overview
 Fire indices can show the current fire danger, the severity of drought in an area, and likelihood of spread. All the indices in this repository have been written in the NCAR Command Language (NCL). They use a variety of inputs. All of them use precipitation, many use temperature, while others also use solar radiation, wind speeds, and humidity. In combination, a variety of fire indices may be able to be used to pinpoint areas of extreme fire danger and severity, with focus on synchronous large wildfires across the contiguous United States. 
 
