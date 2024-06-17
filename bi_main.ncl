@@ -113,7 +113,9 @@ huss = r_huss->huss
 erc = r_erc->erc
 ;spd = r_spd->sfcWind
 spd = r_spd->spd
-elev = r_elev->orog
+;elev = r_elev->orog
+;elev = r_elev->elevation
+elev = r_elev->elev
 ;elev = 500.
 ;grid = "NAM-22i"
 

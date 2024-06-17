@@ -88,6 +88,7 @@ mFFWI = FAF * FFWI
 
 delete_VarAtts(mFFWI, -1)               ;get rid of superfluous attributes
 mFFWI@long_name = "modified Fosberg Fire Weather Index"
+mFFWI@standard_name = "modified_fosberg_fire_weather_index"
 varatts = (/"units","missing_value","_FillValue"/)
 mFFWI@$varatts(0)$ = "1"        ;mFFWI is unitless
 

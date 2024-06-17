@@ -96,18 +96,45 @@ begin
 	wtotln = wtotl * (1 - stl)	; total live-fuel loading
 
 	hn1 = w1n * exp( -138.0 / sg1)		; heating number of 1-hour class
-	hn10 = w10n * exp( -138.0 / sg10)	; heating number of 10-hour class
-	hn100 = w100n * exp( -138.0 / sg100)	; heating number of 100-hour class
 
-	if((-500. / sgherb) .lt. -180.218) then
-	        hnherb = conform_dims(dimsizes(wherbn), 0., -1)	; heating number of herbaceous class
+	if(sg10 .ne. 0) then
+		hn10 = w10n * exp( -138.0 / sg10)	; heating number of 10-hour class
 	else
-	        hnherb = wherbn * exp(-500. / sgherb)
+		hn10 = 0.0
 	end if
 
-	hnwood = where((-500. / sgwood) .lt. -180.218, 0., wwoodn * exp(-500. / sgwood))	; heating number of woody class
+	if(sg100 .ne. 0) then
+		hn100 = w100n * exp( -138.0 / sg100)	; heating number of 100-hour class
+	else
+		hn100 = 0.0
+	end if
 
-	wrat = where((hnherb + hnwood) .eq. 0., 0., (hn1 + hn10 + hn100) / (hnherb + hnwood))	; ratio of dead-to-live heating numbers for calculation of live moisture of extinction (mxl). note that contributions from the 1000-hour class are omitted because their contributions are negligible
+	if(sgherb .ne. 0.0) then
+	        if((-500. / sgherb) .lt. -180.218) then
+	                hnherb = conform_dims(dimsizes(wherbn), 0., -1)	; heating number of herbaceous class
+	        else
+	                hnherb = wherbn * exp(-500. / sgherb)
+	        end if
+	else
+	        hnherb = conform_dims(dimsizes(wherbn), 0., -1)
+	end if
+
+;	hnwood = where((-500. / sgwood) .lt. -180.218, 0., wwoodn * exp(-500. / sgwood))	; heating number of woody class
+
+	sgwood@_FillValue = mc100@_FillValue
+	hnwood_exp = sgwood
+	hnwood = sgwood
+
+	hnwood_exp = -500. / where(sgwood .ne. 0.0, sgwood, mc100@_FillValue)   ;ALTERED 2023/03/14 to have this be an intermediate variable, hnwood_exp, to make this clearer
+	hnwood = where(hnwood_exp .lt. -180.218, 0., wwoodn * exp(hnwood_exp))
+	hnwood = where(sgwood .eq. 0.0, 0.0, hnwood)
+	delete(hnwood_exp)
+
+	;wrat = where((hnherb + hnwood) .eq. 0., 0., (hn1 + hn10 + hn100) / (hnherb + hnwood))	; ratio of dead-to-live heating numbers for calculation of live moisture of extinction (mxl). note that contributions from the 1000-hour class are omitted because their contributions are negligible
+	wrat = hnherb
+	wrat@_FillValue = mc100@_FillValue
+	wrat = (hn1 + hn10 + hn100) / where((hnherb + hnwood) .eq. 0.0, mc100@_FillValue, hnherb + hnwood)
+
 	mclfe = ((mc1 * hn1) + (mc10 * hn10) + (mc100 * hn100)) / (hn1 + hn10 + hn100)		; dead-fuel moisture content, weighted by heating number, for calculation of live moisture of extinction (mxl)
 
 	sgbrt = (fdead * sgbrd) + (flive * sgbrl)		; characteristic surface area-to-volume ratio of fuel bed, surface area weighted
@@ -117,7 +144,7 @@ begin
 	wtmcl = (fherb * mcherb) + (fwood * mcwood)		; surface area weighted live-fuel moisture content
 
 	mxl = where(wtotln .gt. 0, (2.9 * wrat * (1.0 - mclfe / mxd) - 0.226) * 100.0 > mxd, 0)	; calculated live-fuel moisture of extinction
-
+	mxl = where(ismissing(wrat), 0., mxl)
 	gmamx = (sgbrt^1.5) / (495.0 + 0.0594 * sgbrt^1.5)	; weighted maximum reaction velocity of surface area
 	betbar = rhobed/rhobar					; packing ratio
 	betop = 3.348 * sgbrt^(-0.8189)				; optimum packing ratio, surface area weighted
@@ -127,7 +154,8 @@ begin
 
 	fherb = saherb / salive	; proportion of live surface area in herbaceous class
 
-	livrt = wtmcl / mxl	; ratio in calculation of etaml
+	livrt = wtmcl / where(mxl .eq. 0., mc100@_FillValue, mxl)	; ratio in calculation of etaml
+	livrt = where(mxl .eq. 0.0, 0.0, livrt)
 
 	gmaop = gmamx * (betbar / betop)^ad * exp(ad * (1.0 + betbar / betop))	; weighted optimum reaction velocity of surface area
 	wdeadn = (f1 * w1n) + (f10 * w10n) + (f100 * w100n)			; net loading of dead fuels, surface-area weighted
@@ -167,7 +195,44 @@ begin
 ;	phiwnd = where((ws * 88.0 * wndfc) .gt. (0.9 * ir), ufact * ((0.9 * ir)), 1)
 
 
-	htsink = rhobed * (fdead * ( f1 * exp(-138.0 / sg1) * (250.0 * 11.16 * mc1) + f10 * exp(-138.0 / sg10) * (250.0 * 11.16 * mc10) + f100 * exp(-138.0 / sg100) * (250.0 * 11.16 * mc100))) + (flive * (fherb * exp(-138.0 / sgherb) * ( 250.0 + 11.16 * mcherb) + fwood * exp(-138.0 / sgwood) * ( 250.0 + 11.16 * mcwood)))	; heat sink
+;	htsink = rhobed * \
+;		(fdead * ( f1 * exp(-138.0 / sg1) * (250.0 * 11.16 * mc1) + \
+;		f10 * exp(-138.0 / sg10) * (250.0 * 11.16 * mc10) + \
+;		f100 * exp(-138.0 / sg100) * (250.0 * 11.16 * mc100))) + \
+;		(flive * (fherb * exp(-138.0 / sgherb) * ( 250.0 + 11.16 * mcherb) + \
+;		fwood * exp(-138.0 / sgwood) * ( 250.0 + 11.16 * mcwood)))	; heat sink
+;please note the calculation above is extremely, extremely wrong.
+
+	;ht1 = f1 * exp(-138.0 / where(sg1 .eq. 0., mc100@_FillValue, sg1)) * (250.0 * 11.16 * mc1)
+	;ht1 = where(sg1 .eq. 0., 0., ht1)
+
+	ht1 = f1 * exp(-138.0 / sg1) * (250.0 + 11.16 * mc1)
+
+	if(sg10 .ne. 0.) then
+		ht10 = f10 * exp(-138.0 / sg10) * (250.0 + 11.16 * mc10)
+	else
+		ht10 = 0.
+	end if
+
+	if(sg100 .ne. 0.) then
+		ht100 = f100 * exp(-138.0 / sg100) * (250.0 + 11.16 * mc100)
+	else
+		ht100 = 0.
+	end if
+
+	if(sgherb .ne. 0.) then
+		htherb = fherb * exp(-138.0 / sgherb) * ( 250.0 + 11.16 * mcherb)
+	else
+		htherb = 0.
+	end if
+
+	if(sgwood .ne. 0.) then
+		htwood = fwood * exp(-138.0 / sgwood) * ( 250.0 + 11.16 * mcwood)
+	else
+		htwood = 0.
+	end if
+
+	htsink = rhobed * ((fdead * (ht1 + ht10 + ht100)) + (flive * (htherb + htwood)))	;ALTERED 2023/07/21 it appears that the original documentation contains a parenthesis error such that it is rhobed * ((fdead * (ht1 + ht10 + ht100))) + (flive * (htherb + htwood)) : rhobed is only applied to the dead fuels. I am changing to John's code so that rhobed is multiplied to both dead and live fuels.
 
 	;the following calculation is technically a variable called ros, or Rate of Spread. However, sc is just a rounding of ros.
 	sc = ir * zeta * (1 + phislp + phiwnd) / htsink	; spread component

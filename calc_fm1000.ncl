@@ -145,7 +145,7 @@ begin
 	delete_VarAtts(mc1000, -1) ;get rid of superfluous attributes
 
 	mc1000@long_name = "Percent Moisture Content for 1000-hr timelag"  
-
+	mc1000@standard_name = "nfdrs_1000_hour_fuel_moisture"
 	varatts = (/"units", "missing_value", "_FillValue"/)
 	mc1000@$varatts(0)$ = "1"
 

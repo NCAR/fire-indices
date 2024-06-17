@@ -10,8 +10,9 @@ load "check_time_length.ncl"
 ; daily data must be fed into the program
 
 /; 
-	prec is daily precipitation
-	tmax is daily maximum temperature
+	prec is daily precipitation for the calculation period
+	ref_prec is the precipitation data that will be used to calculate annual precipitation (this may differ from prec due to interest in having a set reference period such as 1970-2000 as the reference period for future projections. Ref precip could totally just be the same as the prec variable for the calculation period)
+	tmax is daily maximum temperature for the calculation period
 	calendar is the string describing which calendar was used for prec, tmax. Supported calendars: gregorian, standard, 365_day, 366_day, 360_day, no_leap, all_leap
 	iounits: integer array corresponding to units of tmax and prec
 
@@ -25,13 +26,18 @@ load "check_time_length.ncl"
 		   iounit(1)=1 input prec (inches/day)
 		   iounit(1)=2 input prec (kg m-2 s-1)
 
+		   iounit(2)=-1 input ref prec (metadata)
+		   iounit(2)=0 input ref prec (mm/day)
+		   iounit(2)=1 input ref prec (inches/day)
+		   iounit(2)=2 input ref prec (kg m-2 s-1)
+
 ;/
 ; Q is the initial (previous day's) KBDI
-; annual_pr is the mean annual precipitation. read in in mm
+; annual_pr is the mean annual precipitation
 ; precip_acc is the accumulated precipitation over contiguous days
 
 
-function calc_kbdi ( prec, tmax, calendar, iounits, opt )
+function calc_kbdi ( prec, tmax, ref_prec, calendar, iounits, opt )
 local kbdi, precip_acc, Q, total_precip, ndaysyear, ndays, nyears, annual_pr, dQ, precip_adj
 
 begin
@@ -41,13 +47,14 @@ size = dimsizes(iounits)
 if(size .eq. 1) then
 	if(iounits .eq. -1) then
 		convert_temp("degF", tmax)                      ;convert to Fahrenheit
-		convert_prec("inches/day", prec)
+		convert_prec("inches/day", prec)	;convert to inches/day
+		convert_prec("inches/day", ref_prec)
 	else
 		print("The iounits value "+ iounits +" is not recognized. To indicate that all input units should be taken from metadata, input the value -1. Otherwise, indicate units according to documentation in a vector of (/tmax, prec/).")
 	end if
 end if
 if(size .gt. 1) then
-	units = unit_handling((/"tmax", "prec"/), iounits)
+	units = unit_handling((/"tmax", "prec", "prec"/), iounits)
 	if(units(0) .ne. "metadata") then
 		tmax@units = units(0)
 	end if
@@ -56,8 +63,13 @@ if(size .gt. 1) then
 		prec@units = units(1)
 	end if
 
+	if(units(2) .ne. "metadata") then
+		ref_prec@units = units(2)
+	end if
+
 	convert_temp("degF", tmax)
 	convert_prec("inches/day", prec)
+	convert_prec("inches/day", ref_prec)
 end if
 
 ;Set up KBDI variable
@@ -69,7 +81,7 @@ precip_acc = 0.0
 Q = kbdi(0, :, :)
 Q = 100.0	;initial KBDI value, taken from Larry's code. Different sources have different starting points.
 
-total_precip = dim_sum_n(prec, 0)
+total_precip = dim_sum_n(ref_prec, 0)
 
 ndaysyear = 365.2425    ;gregorian or standard length of year
 
@@ -89,11 +101,18 @@ end if
 end if
 
 ndays = dimsizes(prec(:,0,0))             ; extracts number of days in a daily dataset
-nyears = ndays/ndaysyear
+;nyears = ndays/ndaysyear
 
-check_time_length(ndays, ndaysyear * 30.0, opt)
+ndays_ref = dimsizes(ref_prec(:, 0, 0))
+nyears_ref = ndays_ref/ndaysyear
 
-annual_pr = total_precip / nyears
+print(nyears_ref) ;comment out!
+
+check_time_length(ndays_ref, ndaysyear * 30.0, opt)
+
+annual_pr = total_precip / nyears_ref
+
+printVarSummary(annual_pr)	;comment out!
 
 ndays = dimsizes(prec(:,0,0))
 
@@ -127,6 +146,7 @@ print("WARNING: This code has been modified as of 1/24/2022 to reflect a correct
 
 delete_VarAtts(kbdi, -1)   ; get rid of superfluous attributes
 kbdi@long_name = "Keetch-Byram Drought Index"
+kbdi@standard_name = "keetch_byram_drought_index"
 varatts = (/"units", "missing_value", "_FillValue"/)
 kbdi@$varatts(0)$ = "1"            ;KBDI is unitless
 

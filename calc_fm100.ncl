@@ -138,6 +138,7 @@ begin
 
 	delete_VarAtts(fm100, -1) ;get rid of superfluous attributes
 	fm100@long_name = "Percent Moisture Content for 100-hr timelag"   ; No convention for long names, just make it descriptive
+	fm100@standard_name = "nfdrs_100_hour_fuel_moisture"
 	varatts = (/"units", "missing_value", "_FillValue"/)
 	fm100@$varatts(0)$ = "%"
 

@@ -23,7 +23,8 @@ begin
 
 	daylit = calc_daylight_manual(day_year, lat, lonlen)
 
-	dayl = (daylit - 10.)
+	;dayl = (daylit - 10.) / 11.
+	dayl = (daylit - 10.)	;THIS CONTAINED A TYPO PRIOR TO 2023/07/13. IT USED TO READ: dayl = (daylit - 10.) / 11.
 	dayl = where(daylit .lt. 10, 0., dayl)
 	dayl = where(daylit .gt. 11, 1., dayl)
 

@@ -7,11 +7,14 @@ The following variables should be specified as command-line arguments
  e.g.: ncl file=\"$file\" script.ncl
 
 	precfile
+	refprecfile (note this could be a list \(\/\"file1\",\"file2\",...,\"filen\"\/\) ) (the backslashes are getting out of hand -.- )
 	tmaxfile
 	output (the file to be written to)
+	refstart (refstart=1980) (inclusive) (refstart/refend are numbers not strings)
+	refend (refend=2010) (noninclusive)
 
 Example of command-line to call kbdi_main:
-ncl kbdi_main.ncl precfile=\"prec.METDATA.22i.nc\" tmaxfile=\"tmax.METDATA.22i.nc\" output=\"kbdi.METDATA.22i.nc\"
+ncl kbdi_main.ncl precfile=\"prec.METDATA.22i.nc\" refprecfile=\"prec.METDATA.22i.nc\" tmaxfile=\"tmax.METDATA.22i.nc\" output=\"kbdi.METDATA.22i.nc\" refstart=1980 refend=2010
 
 ;/
 
@@ -25,6 +28,9 @@ begin
 
 read_precip = addfile(precfile, "r")
 read_temper = addfile(tmaxfile, "r")
+
+;read_refprecip = addfile(refprecfile, "r")
+read_refprecip = addfiles(refprecfile, "r")	; for when the requested time period spans across files
 
 timeP = read_precip->time
 timeT = read_temper->time
@@ -63,9 +69,22 @@ end do
 ;read in daily precipitation
 daily_precip = read_precip->prec
 
-
 ;read in maximum daily temperature
 tmax = read_temper->tmax
+
+;read in reference precipitation (isolate the time period first)
+reftime_full = read_refprecip[:]->time
+reftime_full_formatted = cd_calendar(reftime_full, 0)
+reftime_ind = ind((reftime_full_formatted(:, 0) .ge. refstart) .and. (reftime_full_formatted(:,0) .lt. refend))
+ref_precip = read_refprecip[:]->prec(reftime_ind, :, :)
+
+;comment out this section if not debugging
+printVarSummary(ref_precip)
+reftime_sub = read_refprecip[:]->time(reftime_ind)
+print(reftime_sub(0) + " " + reftime_sub(dimsizes(reftime_sub)-1))
+printVarSummary(daily_precip)
+printVarSummary(tmax)
+
 
 calendar = read_precip->time@calendar
 
@@ -75,7 +94,7 @@ units = -1	;-1 corresponds to metadata
 option = False
 ;option@suppressWarning = True
 
-kbdi = calc_kbdi(daily_precip, tmax, calendar, units, option)
+kbdi = calc_kbdi(daily_precip, tmax, ref_precip, calendar, units, option)
 
 KBDI_out->kbdi = kbdi
 

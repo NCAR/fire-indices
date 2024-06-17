@@ -131,6 +131,7 @@ end do
 
 delete_VarAtts(cfwi, -1)
 cfwi@long_name = "Canadian Fire Weather Index"
+cfwi@standard_name = "canadian_fire_weather_index"
 varatts = (/"units", "missing_value", "_FillValue"/)
 cfwi@$varatts(0)$ = "1"         ; cfwi is unitless
 

@@ -6,7 +6,7 @@
 The following variables should be specified as command-line arguments
  e.g.: ncl file=\"$file\" script.ncl
 
-        precfile (daily precipitation)
+        spdfile (daily wind speed)
         tmaxfile (daily maximum temperature)
 	hursfile (daily relative humidity)
 	kbdifile (daily Keetch Byram Drought Index)

@@ -229,6 +229,7 @@ begin
 	delete_VarAtts(bi, -1) ;get rid of superfluous attributes
 
 	bi@long_name = "Burning Index"   ; No convention for long names, just make it descriptive
+	bi@standard_name = "nfdrs_burning_index"
 
 	varatts = (/"units", "missing_value", "_FillValue"/)
 

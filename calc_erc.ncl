@@ -22,7 +22,9 @@ load "calc_x1000.ncl"
 load "calc_mcherb.ncl"
 load "calc_mcwood.ncl"
 load "calc_vegstage.ncl"
+;load "just_erc_bi_old_functions/calc_just_erc_1fuelmod.ncl"
 load "calc_just_erc_1fuelmod.ncl"
+;load "just_erc_bi_old_functions/calc_just_erc_fuelmap.ncl"
 load "calc_just_erc_fuelmap.ncl"
 load "check_time_length.ncl"
 ;load "extract_lat_lon.ncl"
@@ -71,7 +73,7 @@ load "check_time_length.ncl"
 ;/
 
 function calc_erc(tmax, tmin, prec, rhmax, rhmin, rsds, huss, fm100, fm1000, elev, time, lat, lon, grid, fuel_mod, iounits, opt)
-local units_list, b, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, fuel_mod, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
+local units_list, b, latlen, lonlen, timelen, day_year, tempsolar, maxsolar, sow, annperen, climat, pptdur, w1d, w10d, w100d, w1000d, wherb, wwood, depth, sg1d, sg10d,sg100d,sg1000d,sgherb,sgwood,extmoi,hd,c1,hveg,greendays,colddays,ymherb,ymwood,rh1,vpd,maxt,mint,gsi,gsi_norm,temp1,greenup,yx1000,ym1000, pregrns,pregrn,tmpprm,rhprm,emcprm,fm1,fm10,mcwodi,mcherbi,erc,ndays,year,j_green,x1000,gren,mcherb,greendays,mcwood,hveg,varatts
 
 begin
 
@@ -216,6 +218,7 @@ begin
 	delete_VarAtts(erc, -1) ;get rid of superfluous attributes
 
 	erc@long_name = "Energy Release Component"   ; No convention for long names, just make it descriptive
+	erc@standard_name = "nfdrs_energy_release_component"
 
 	varatts = (/"units", "missing_value", "_FillValue"/)
 

@@ -64,7 +64,7 @@ wtot = wtotd + wtotl
 ;compute net fuel loading
 w1n = w1dp * (1. - stdl)
 w10n = w10d * (1. - stdl)
-w100n = w100d - (1. - stdl)
+w100n = w100d * (1. - stdl)	; ALTERED as of 2023/07/17 from w100n =  w100d - (1. - stdl) which was a typo
 wherbn = wherbp * (1. - stdl)   ;wherbn is from paper. In MATLAB code this is the variable whernc
 wwoodn = wwood * (1. - stdl)
 wtotln = wtotl * (1. - stdl)
@@ -81,10 +81,14 @@ hnu10 = where(sg10d .ne. 0.0, hnu10, 0.0)
 hnu100 = w100n * exp( -138. / where(sg100d .ne. 0.0, sg100d, fm100@_FillValue))
 hnu100 = where(sg100d .ne. 0.0, hnu100, 0.0)
 
-hnherb = -500. / where(sgherb .ne. 0.0, sgherb, fm100@_FillValue)
-hnherb = where(sgherb .eq. 0.0, 0.0, hnherb)	;get the parts that were set to missing back to 0 for the logic in the where statement to work
-hnherb = where(hnherb .lt. -180.218, 0., wherbn * exp(-500. / where(sgherb .ne. 0, sgherb, fm100@_FillValue)))
+sgherb@_FillValue = fm100@_FillValue
+hnherb_exp = sgherb
+hnherb_exp = -500. / where(sgherb .ne. 0.0, sgherb, fm100@_FillValue)
+;hnherb = where(sgherb .eq. 0.0, 0.0, hnherb)	;get the parts that were set to missing back to 0 for the logic in the where statement to work
+;hnherb = where(hnherb .lt. -180.218, 0., wherbn * exp(-500. / where(sgherb .ne. 0, sgherb, fm100@_FillValue)))
+hnherb = where(hnherb_exp .lt. -180.218, 0., wherbn * exp(hnherb_exp))
 hnherb = where(sgherb .eq. 0.0, 0.0, hnherb)
+delete(hnherb_exp)
 /;
 if((-500. / sgherb) .lt. -180.218) then
         hnherb = conform_dims(dimsizes(wherbn), 0., -1)
@@ -92,16 +96,31 @@ else
         hnherb = wherbn * exp(-500. / sgherb)
 end if
 ;/
+
+
+sgwood@_FillValue = fm100@_FillValue
+hnwood_exp = sgwood
+hnwood = sgwood
+
+hnwood_exp = -500. / where(sgwood .ne. 0.0, sgwood, fm100@_FillValue)   ;ALTERED 2023/03/14 to have this be an intermediate variable, hnwood_exp, to make this clearer
+hnwood = where(hnwood_exp .lt. -180.218, 0., wwoodn * exp(hnwood_exp))
+hnwood = where(sgwood .eq. 0.0, 0.0, hnwood)
+delete(hnwood_exp)
+
+/;
 hnwood = -500. / where(sgwood .ne. 0.0, sgwood, fm100@_FillValue)
 hnwood = where(sgwood .eq. 0.0, 0.0, hnwood)
 hnwood = where(hnwood .lt. -180.218, 0., wwoodn * exp(-500. / where(sgwood .ne. 0, sgwood, fm100@_FillValue)))
 hnwood = where(sgwood .eq. 0.0, 0.0, hnwood)
-
+;/
+wrat = hnherb
+wrat@_FillValue = fm100@_FillValue
 wrat = (hnu1 + hnu10 + hnu100) / where((hnherb + hnwood) .ne. 0.0, hnherb + hnwood, fm100@_FillValue)
-wrat = where((hnherb + hnwood) .eq. 0., 0., wrat)
+;wrat = where((hnherb + hnwood) .eq. 0., 0., wrat)	;keep wrat as missing when both hnherb and hnwood are 0
 
 fmff = ((fm1 * hnu1) + (fm10 * hnu10) + (fm100 * hnu100)) / (hnu1 + hnu10 + hnu100)     ; fine dead fuel moisture content
 extliv = where(wtotln .gt. 0., ((2.9 * wrat * (1 - fmff / extmoi) - 0.226) * 100) > extmoi, 0.)  ; moisture of extinction of the dead fuels from the fuel model
+extliv = where(ismissing(wrat), 0., extliv)     ;ALTERED 2023/07/14 to accompany wrat being a missing value where hnherb, hnwood are both 0
 
 ;weighting factors for rate-of-spread by surface area
 sa1 = (w1dp / rhodl) * sg1d
@@ -162,7 +181,9 @@ wtfmde = fct1e * fm1 + fct10e * fm10 + fct100e * fm100 + fct1000e * fm1000
 wtfmle = fwoode * fmwood + fhrbce * mcherb
 
 dedrte = wtfmde / extmoi
-livrte = wtfmle / extliv
+;livrte = wtfmle / extliv
+livrte = wtfmle / where(extliv .eq. 0., fm100@_FillValue, extliv)
+livrte = where(extliv .eq. 0., 0., livrte)
 
 etamde = 1 - 2 * dedrte + 1.5 * (dedrte^2) - 0.5 * (dedrte^3)
 etamde = etamde < 1
