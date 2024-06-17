@@ -80,5 +80,8 @@ The scale for burning index depends on which fuel model is used. 0 is low fire d
 
 Like ERC, there are options for the fuel model inputs. It is closely related to ERC in many ways.
 
+##SFDI
+SFDI is the Severe Fire Danger Index. It is the product of ERC and BI, which is then normalized and sorted into 5 classes: low (0-60), moderate (60-80), high (80-90), very high (90-97), and severe (97-100). The paper which developed SFDI can be found [here](https://doi.org/10.3390/fire2030047).
+
 ## SUPPORT
 This repository is supported by NSF Growing Convergence Project 2019762.
